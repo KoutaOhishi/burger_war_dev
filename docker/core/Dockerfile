@@ -14,6 +14,14 @@ FROM $KIT_IMAGE:$KIT_VERSION
 #     libarmadillo8 \
 #     && rm -rf /var/lib/apt/lists/*
 
+#-------------------------------------------------
+# obstacle_detectorのインストールとビルド
+#-------------------------------------------------
+RUN apt-get update -q && apt-get install -y --no-install-recommends \
+    cd ~/carkin_ws/src \
+    git clone https://github.com/tysik/obstacle_detector.git \
+    cd ~/catkin_ws \
+    catkin build
 
 # pipで必要なパッケージをインストールする例
 #-------------------------------------------------
