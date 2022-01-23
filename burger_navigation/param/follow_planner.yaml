@@ -1,0 +1,17 @@
+# アルゴリズムはこの辺を参照　https://myenigma.hatenablog.com/entry/2017/06/05/111007
+# https://tech.tier4.jp/entry/2019/03/29/173543
+
+FollowPlannerROS:
+  look_ahead_distance:
+    0.1 # look_ahead_point までの距離 速度が速いなら遠く、遅いなら近くに設定すると良い（自動化したい）
+    # 振動的な動きなら遠めに、ショートカットしすぎなら近めに設定
+
+  xy_goal_tolerance: 0.05 # xyのゴール許容値
+  yaw_goal_tolerance: 0.1 # yawのゴール許容値
+  vx: 0.22 # 並進速度
+  vx_slow: 0.05 # ゴール付近における並進速度
+  vw_max: 2.75 # 角速度最大値
+  vw_: 1.57 # その場回転するときの角速度
+  slow_range: 0.1 # ゴール付近で減速する時のゴールからの距離しきい値
+  rotate_angle_th: 30 # [deg]　その場回転するときのしきい値
+  latch_xy_goal_tolerance: true # 一度でもxyのゴール判定しきい値を下回われば、xyはクリアしたとするか否か

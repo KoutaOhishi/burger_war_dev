@@ -1,9 +1,9 @@
 shutdown_costmaps: false
-controller_frequency: 10.0
+controller_frequency: 10.0    #　local plannerの周波数　実質制御周期なので低くするのは避けたい
 planner_patience: 5.0
 controller_patience: 15.0
 conservative_reset_dist: 3.0
-planner_frequency: 5.0
+planner_frequency: 5.0        # global plannerの周波数　計算資源足りないなら低くしても良い？
 oscillation_timeout: 10.0
 oscillation_distance: 0.2
 
