@@ -14,10 +14,14 @@ FROM $KIT_IMAGE:$KIT_VERSION
 #     libarmadillo8 \
 #     && rm -rf /var/lib/apt/lists/*
 
+#-------------------------------------------------------------------------------------------------
+# obstacle_detectorのインストールとビルド
+# ※catkin_ws/src/ 直下に何故か置けないので、/opt/ros/melodic/share/にインストール
+#-------------------------------------------------
 RUN cd /opt/ros/melodic/share \
     && git clone https://github.com/tysik/obstacle_detector.git \
-    #&& cd /home/developer/catkin_ws \
-    #&& catkin build
+    && cd /home/developer/catkin_ws \
+    && catkin build
 
 # pipで必要なパッケージをインストールする例
 #-------------------------------------------------
