@@ -14,7 +14,7 @@ FROM $KIT_IMAGE:$KIT_VERSION
 #     libarmadillo8 \
 #     && rm -rf /var/lib/apt/lists/*
 
-RUN cd /home/developer/catkin_ws/src \
+RUN cd /opt/ros/melodic/share \
     && git clone https://github.com/tysik/obstacle_detector.git \
     #&& cd /home/developer/catkin_ws \
     #&& catkin build
