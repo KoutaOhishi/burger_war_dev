@@ -14,6 +14,9 @@ FROM $KIT_IMAGE:$KIT_VERSION
 #     libarmadillo8 \
 #     && rm -rf /var/lib/apt/lists/*
 
+RUN cd /home/developer/ \
+    && mkdir hoge
+
 # pipで必要なパッケージをインストールする例
 #-------------------------------------------------
 # RUN yes | pip install \
