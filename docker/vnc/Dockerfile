@@ -64,6 +64,16 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
         firefox \
     && rm -rf /var/lib/apt/lists/*
 
+# obstacle_detectorのインストールとビルド
+#-------------------------------------------------
+RUN apt-get update -q && apt-get install -y --no-install-recommends \
+    cd ~/carkin_ws/src \
+    git clone https://github.com/tysik/obstacle_detector.git \
+    cd ~/catkin_ws \
+    catkin build
+#-------------------------------------------------
+
+
 #-------------------------------------------------------------------------------------------------
 # 環境設定
 #-------------------------------------------------------------------------------------------------
