@@ -65,6 +65,13 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
         firefox \
     && rm -rf /var/lib/apt/lists/*
 
+# obstacle_detectorのインストールとビルド
+#-------------------------------------------------
+RUN cd /home/developer/carkin_ws/src \
+    && git clone https://github.com/tysik/obstacle_detector.git \
+    && cd /home/developer/catkin_ws \
+    && catkin build
+#-------------------------------------------------
 
 # NVIDIAのドライバをインストールする例 ２) バージョンを指定してインストール
 # 参考：https://gitlab.com/nvidia/container-images/driver/-/blob/master/ubuntu18.04/Dockerfile
