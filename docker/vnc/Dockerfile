@@ -62,6 +62,7 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
 #-------------------------------------------------------------------------------------------------
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
         firefox \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 # obstacle_detectorのインストールとビルド
