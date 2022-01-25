@@ -29,7 +29,7 @@ from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 class SeigoRun3:
 
     def __init__(self):
-        pass
+        self.get_rosparams()
 
     def get_rosparams(self):
         self.my_side = rospy.get_param('~side')
