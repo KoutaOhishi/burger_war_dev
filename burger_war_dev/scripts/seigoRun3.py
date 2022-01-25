@@ -60,12 +60,19 @@ class SeigoRun3:
 
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
+    def get_war_state(self):
+        req = requests.get(self.judge_server_url+"/warState")
+        dic = req.json()
+
+        print(dic)
+
 def main():
     rospy.init_node("seigo_run3")
     node = SeigoRun3()
     loop_rate = rospy.Rate(30) #30Hz
     while not rospy.is_shutdown():
         #some processes
+        node.get_war_state()
 
         loop_rate.sleep()
 
