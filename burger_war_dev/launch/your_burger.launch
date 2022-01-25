@@ -1,22 +1,51 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="side" default="r"/> <!-- "b" = blue side, "r" = red side  -->
+  <arg name="robot_namespace" default=""/>
+  <arg name="rviz_file" default="burger_navigation.rviz"/>
+  
+  <!-- burger_navigationを起動 -->
+  <!--include file="$(find burger_navigation)/launch/burger_navigation.launch"-->
+    <!--arg name="robot_namespace" default="$(arg robot_namespace)"/-->
+    <!--arg name="rviz_file" value="$(arg rviz_file)"/-->
+  <!--/include-->
 
-    <!-- You can change control program  -->
+  <!-- メイン制御のノードを起動 -->
+  <node pkg="burger_war_dev" type="seigoRun3.py" name="seigoRun3" output="screen"/>
+    <param name="side" value="$(arg side)" />
+    <param name="robot_namespace" value="$(arg robot_namespace)" />
 
-    <!-- sample program node -->
+    <!-- 何秒前までの敵検出結果を有効とするか -->
+    <param name="detect_enemy_time_tolerance" value="0.5" />
 
-    <node pkg="burger_war_dev" type="randomRun.py" name="randomRun" output="screen"/>
+    <!-- 何メートル以内に敵が来たら攻撃行動に遷移するか -->
+    <param name="snipe_distance_th" value="0.8" />
 
-    <!-- END sample program node -->
+    <!-- この範囲内に障害物があるときは回復行動に移る -->
+    <param name="distance_to_wall_th" value="0.15" />
 
-    <!-- Navigation sample program  -->
-    <!--
-    <include file="$(find burger_navigation)/launch/burger_navigation.launch" />
-    <node pkg="burger_war_dev" type="navirun.py" name="navirun" output="screen"/>
-    -->
-    <!-- END Navigation sample program node -->
+    <!-- 攻撃するとき敵まで何メートル近づくか -->
+    <param name="approach_distance_th" value="0.53" />
 
-    <!-- End of your space  -->
+    <!-- 敵と方位角の角度差分がこのしきい値を下回ってから、接近 -->
+    <param name="attack_angle_th" value="0.785" />
+
+    <!-- escape parameter -->
+    <!-- enable escape flag -->
+    <param name="enable_escape_approach" value="True" />
+     <!-- minimum distance to enemy(m) -->
+    <param name="escape_approach_distance_th_min" value="0.231" />
+    <!-- maxmum distance to enemy(m) -->
+    <param name="escape_approach_distance_th_max" value="0.851" />
+    <!-- interval time to min-max distance (sec) -->
+    <param name="escape_approach_time_interval" value="6" />
+  </node>
+
+  <!-- obstacle_detectorを起動 -->
+  <!--include file="$(find burger_war_dev)/launch/obstacle_detector.launch"-->
+    <!--arg name="robot_namespace" default="$(arg robot_namespace)"/-->
+  <!--/include-->
+
+
 </launch>
 
