@@ -64,7 +64,20 @@ class SeigoRun3:
         req = requests.get(self.judge_server_url+"/warState")
         dic = req.json()
 
-        print(dic)
+        #scoreの取得
+        self.my_score = int(dic["scores"][self.my_side])
+        if self.my_side == "r":
+            self.enemy_score = int(dic["scores"]["b"])
+        else:
+            self.enemy_score = int(dic["scores"]["r"])
+        print("my_score:"+str(self.my_score))
+        print("enemy_score:"+str(self.enemy_score))
+
+        #time_stampの取得
+        self.game_timestamp = int(dic["time"])
+        if dic["state"] == "running":
+            self.last_game_timestamp = self.game_timestamp
+
 
 def main():
     rospy.init_node("seigo_run3")
