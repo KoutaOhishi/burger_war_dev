@@ -65,6 +65,12 @@ class SeigoRun3:
         #waypointファイルの読み込みと移動開始
         self.waypoint = self.load_waypoint()
         self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
+    
+    def process(self):
+        move_base_status = self.move_base_client.get_state()
+        if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            print("Go to next waypoint")
+            self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
 
     def send_goal_to_move_base(self, waypoint):
         rospy.loginfo("コストマップをクリアします")
@@ -81,11 +87,9 @@ class SeigoRun3:
         goal.target_pose.pose.orientation.z = q[2]
         goal.target_pose.pose.orientation.w = q[3]
         goal.target_pose.header.stamp = rospy.Time.now()
-        print("########")
-        print(goal)
-        print("########")
+        
         self.move_base_client.send_goal(goal)
-        rospy.loginfo("move_baseサーバにwaypointを送信します")
+        rospy.loginfo("move_baseサーバにwaypointを送信しました")
         rospy.sleep(0.5)
 
     def load_waypoint(self):
@@ -183,6 +187,8 @@ def main():
     while not rospy.is_shutdown():
         #some processes
         node.get_war_state()
+
+        node.process()
 
         loop_rate.sleep()
 
