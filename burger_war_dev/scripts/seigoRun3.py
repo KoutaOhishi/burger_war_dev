@@ -31,7 +31,7 @@ class SeigoRun3:
 
     def __init__(self):
         self.get_rosparams()
-
+        
         self.game_timestamp = 0
         self.last_game_timestamp = 0
         self.my_score = 0
@@ -50,6 +50,26 @@ class SeigoRun3:
         self.my_pose_x = 1000              # init value
         self.my_pose_y = 1000              # init value
         self.my_direction_th = math.pi*100 # init value
+
+        #move_baseの準備
+        self.move_base_client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+        if not self.move_base_client.wait_for_server(rospy.Duration(5)):
+            rospy.loginfo("move_baseサーバの待機中")
+        rospy.loginfo("move_baseサーバ起動")
+        self.status = self.move_base_client.get_state()
+        
+        #costmapの読み込み
+        rospy.wait_for_service("/move_base/clear_costmaps")
+        self.clear_costmap = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
+
+        #waypointファイルの読み込みと移動開始
+        self.waypoint = self.load_waypoint()
+        self.send_goal(self.waypoint.get_current_waypoint())
+
+    def load_waypoint(self):
+        file_path = os.environ["HOME"] + \
+            '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20211126.csv'
+        return Waypoints(file_path, self.my_side)
 
     def get_rosparams(self):
         self.my_side = rospy.get_param('~side')
