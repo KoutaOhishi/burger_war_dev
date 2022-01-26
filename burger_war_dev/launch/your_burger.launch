@@ -42,9 +42,9 @@
   </node>
 
   <!-- obstacle_detectorを起動 -->
-  <!--include file="$(find burger_war_dev)/launch/obstacle_detector.launch"-->
-    <!--arg name="robot_namespace" default="$(arg robot_namespace)"/-->
-  <!--/include-->
+  <include file="$(find burger_war_dev)/launch/obstacle_detector.launch">
+    <arg name="robot_namespace" default="$(arg robot_namespace)"/>
+  </include>
 
 
 </launch>
