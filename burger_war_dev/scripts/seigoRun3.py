@@ -81,9 +81,11 @@ class SeigoRun3:
         goal.target_pose.pose.orientation.z = q[2]
         goal.target_pose.pose.orientation.w = q[3]
         goal.target_pose.header.stamp = rospy.Time.now()
-
-        rospy.loginfo("move_baseサーバにwaypointを送信します")
+        print("########")
+        print(goal)
+        print("########")
         self.move_base_client.send_goal(goal)
+        rospy.loginfo("move_baseサーバにwaypointを送信します")
         rospy.sleep(0.5)
 
     def load_waypoint(self):
