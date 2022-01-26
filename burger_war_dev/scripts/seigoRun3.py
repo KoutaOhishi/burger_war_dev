@@ -68,6 +68,7 @@ class SeigoRun3:
     
     def process(self):
         move_base_status = self.move_base_client.get_state()
+        print(move_base_status)
         if move_base_status == actionlib.GoalStatus.SUCCEEDED:
             print("Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
