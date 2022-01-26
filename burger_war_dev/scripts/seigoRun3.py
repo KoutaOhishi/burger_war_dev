@@ -119,7 +119,7 @@ class SeigoRun3:
                 
                 elif self.all_field_score[idx] == 1: #自分がターゲットを取得した
                     if self.all_field_score_prev[idx] == 2: 
-                        print("敵が取得したID："+str(idx)"のターゲットを奪った")
+                        print("敵が取得したID："+str(idx)+"のターゲットを奪った")
                     elif self.all_field_score_prev[idx] == 1:
                         print("ID:"+str(idx)+"のターゲットを取得した")
                     else:
