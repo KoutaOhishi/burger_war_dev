@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from ast import Pass
 from waypoint import Waypoints
 
 from enum import Enum
@@ -30,6 +31,25 @@ class SeigoRun3:
 
     def __init__(self):
         self.get_rosparams()
+
+        self.game_timestamp = 0
+        self.last_game_timestamp = 0
+        self.my_score = 0
+        self.enemy_score = 0
+        self.Is_lowwer_score = False
+        self.all_field_score = np.ones([18])  # field score state
+        self.all_field_score_prev = np.ones(
+            [18])  # field score state (previous)
+        self.enemy_get_target_no = -1
+        self.enemy_get_target_no_timestamp = -1
+        self.my_get_target_no = -1
+        self.my_get_target_no_timestamp = -1
+        self.my_body_remain = 3
+        self.enemy_body_remain = 3
+        # self position estimation value
+        self.my_pose_x = 1000              # init value
+        self.my_pose_y = 1000              # init value
+        self.my_direction_th = math.pi*100 # init value
 
     def get_rosparams(self):
         self.my_side = rospy.get_param('~side')
@@ -70,14 +90,49 @@ class SeigoRun3:
             self.enemy_score = int(dic["scores"]["b"])
         else:
             self.enemy_score = int(dic["scores"]["r"])
-        print("my_score:"+str(self.my_score))
-        print("enemy_score:"+str(self.enemy_score))
 
         #time_stampの取得
         self.game_timestamp = int(dic["time"])
         if dic["state"] == "running":
             self.last_game_timestamp = self.game_timestamp
 
+        #フィールドのスコアを取得する
+        for idx in range(18): # フィールドターゲットの数は18個
+            self.all_field_score_prev[idx] = self.all_field_score[idx] #一つ前のフレームでのスコアを格納
+            target_state = dic["targets"][idx]["player"] #ターゲットを取得しているプレイヤーを取得
+
+            if target_state == "n": #自分も敵もターゲットを取得していない
+                self.all_field_score[idx] = 1
+            elif target_state == self.my_side: #自分がターゲットを取得している
+                self.all_field_score[idx] = 0
+            else: #的がターゲットを取得している
+                self.all_field_score[idx] = 2
+
+            if self.all_field_score[idx] != self.all_field_score_prev[idx]: #ターゲット情報に更新があるかどうか
+                if self.all_field_score[idx] == 2: #敵がターゲットを取得した
+                    if self.all_field_score_prev[idx] == 1:
+                        print("敵がID:"+str(idx)+"のターゲットを取得した")
+                    elif self.all_field_score_prev[idx] == 0:
+                        print("敵にID:"+str(idx)+"のターゲットを奪われた")
+                    else:
+                        pass
+                
+                elif self.all_field_score[idx] == 1: #自分がターゲットを取得した
+                    if self.all_field_score_prev[idx] == 2: 
+                        print("敵が取得したID："+str(idx)"のターゲットを奪った")
+                    elif self.all_field_score_prev[idx] == 1:
+                        print("ID:"+str(idx)+"のターゲットを取得した")
+                    else:
+                        pass
+        #フィールドスコアの更新終了
+
+        #ボディーマーカーのスコアを更新
+        if self.my_side == "b":
+            self.my_body_remain = np.sum(self.all_field_score[0:3])
+            self.enemy_body_remain = np.sum(self.all_field_score[3:6])
+        elif self.my_side == "r":
+            self.my_body_remain = np.sum(self.all_field_score[3:6])
+            self.enemy_body_remain = np.sum(self.all_field_score[0:3])
 
 def main():
     rospy.init_node("seigo_run3")
