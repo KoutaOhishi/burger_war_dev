@@ -58,13 +58,33 @@ class SeigoRun3:
         rospy.loginfo("move_baseサーバ起動")
         self.status = self.move_base_client.get_state()
         
-        #costmapの読み込み
+        #clear_costmapサーバの準備
         rospy.wait_for_service("/move_base/clear_costmaps")
         self.clear_costmap = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
 
         #waypointファイルの読み込みと移動開始
         self.waypoint = self.load_waypoint()
-        self.send_goal(self.waypoint.get_current_waypoint())
+        self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
+
+    def send_goal_to_move_base(self, waypoint):
+        rospy.loginfo("コストマップをクリアします")
+        self.clear_costmap.call()
+
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = self.robot_namespace+"map"
+        goal.target_pose.pose.position.x = waypoint[0]
+        goal.target_pose.pose.position.y = waypoint[1]
+
+        q = tf.transformations.quaternion_from_euler(0, 0, waypoint[2])
+        goal.target_pose.pose.orientation.x = q[0]
+        goal.target_pose.pose.orientation.y = q[1]
+        goal.target_pose.pose.orientation.z = q[2]
+        goal.target_pose.pose.orientation.w = q[3]
+        goal.target_pose.header.stamp = rospy.Time.now()
+
+        rospy.loginfo("move_baseサーバにwaypointを送信します")
+        self.move_base_client.send_goal(goal)
+        rospy.sleep(0.5)
 
     def load_waypoint(self):
         file_path = os.environ["HOME"] + \
