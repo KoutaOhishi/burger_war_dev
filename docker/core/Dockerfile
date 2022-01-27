@@ -22,9 +22,13 @@ FROM $KIT_IMAGE:$KIT_VERSION
     #&& git clone https://github.com/tysik/obstacle_detector.git
     #&& cd /home/developer/catkin_ws \
     #&& catkin build
-RUN cd /home/ && mkdir hoge1 \
-    && cd /home/developer/ && mkdir hoge2 \
-    && cd /home/developer/catkin_ws/ && mkdir hoge3
+RUN cd /home/ && \
+    git clone https://github.com/tysik/obstacle_detector.git 
+RUN cd /home/developer/ && \
+    git clone https://github.com/tysik/obstacle_detector.git 
+RUN cd /home/developer/catkin_ws/ && \
+    git clone https://github.com/tysik/obstacle_detector.git 
+
     
 
 # pipで必要なパッケージをインストールする例
