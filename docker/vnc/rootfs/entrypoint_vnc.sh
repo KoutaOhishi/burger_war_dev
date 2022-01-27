@@ -52,4 +52,3 @@ if [ "$(id -u)" == "0" ]; then
 fi
 
 exec /bin/tini -- supervisord -n -c /etc/supervisor/supervisord.conf
-cd /home/developer/catkin_ws/src && git clone https://github.com/tysik/obstacle_detector.git 
