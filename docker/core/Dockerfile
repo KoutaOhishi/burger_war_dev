@@ -22,7 +22,9 @@ FROM $KIT_IMAGE:$KIT_VERSION
     #&& git clone https://github.com/tysik/obstacle_detector.git
     #&& cd /home/developer/catkin_ws \
     #&& catkin build
-#RUN cp -rf /opt/ros/melodic/share/obstacle_detector /home/developer/catkin_ws/src
+RUN cd /home/ && mkdir hoge1 \
+    && cd /home/developer/ && mkdir hoge2 \
+    && cd /home/developer/catkin_ws/ && mkdir hoge3
     
 
 # pipで必要なパッケージをインストールする例
