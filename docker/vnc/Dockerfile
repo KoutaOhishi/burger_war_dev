@@ -68,9 +68,9 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
 # obstacle_detectorのインストールとビルド
 #-------------------------------------------------
 RUN cd /home/developer/catkin_ws/src \
-    && git clone https://github.com/tysik/obstacle_detector.git \
-    && cd /home/developer/catkin_ws \
-    && catkin build
+    && git clone https://github.com/tysik/obstacle_detector.git 
+#    && cd /home/developer/catkin_ws \
+#    && catkin build
 #-------------------------------------------------
 
 

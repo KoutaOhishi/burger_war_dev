@@ -18,11 +18,11 @@ FROM $KIT_IMAGE:$KIT_VERSION
 # obstacle_detectorのインストールとビルド
 # ※catkin_ws/src/ 直下に何故か置けないので、/opt/ros/melodic/share/にインストール
 #-------------------------------------------------
-RUN cd /opt/ros/melodic/share \
-    && git clone https://github.com/tysik/obstacle_detector.git
+#RUN cd /opt/ros/melodic/share \
+    #&& git clone https://github.com/tysik/obstacle_detector.git
     #&& cd /home/developer/catkin_ws \
     #&& catkin build
-RUN cp -rf /opt/ros/melodic/share/obstacle_detector /home/developer/catkin_ws/src
+#RUN cp -rf /opt/ros/melodic/share/obstacle_detector /home/developer/catkin_ws/src
     
 
 # pipで必要なパッケージをインストールする例
