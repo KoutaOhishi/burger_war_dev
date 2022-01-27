@@ -111,7 +111,8 @@ RUN echo "export LANG=ja_JP.UTF-8" >> /home/developer/.bashrc \
     && echo "export LC_ALL=ja_JP.UTF-8" >> /home/developer/.bashrc \
     && echo "export GTK_IM_MODULE=ibus" >> /home/developer/.bashrc \
     && echo "export QT_IM_MODULE=ibus" >> /home/developer/.bashrc \
-    && echo "export XMODIFIERS='@im=ibus'" >> /home/developer/.bashrc
+    && echo "export XMODIFIERS='@im=ibus'" >> /home/developer/.bashrc \
+    && echo "alias gp='cd ~/catkin_ws/src/burger_war_dev && git reset --hard && git pull && chmod +x burger_war_dev/scripts/*'"
 
 # gnome-terminal起動時の以下の警告対策
 # Couldn't register with accessibility busµ
