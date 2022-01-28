@@ -22,12 +22,6 @@ FROM $KIT_IMAGE:$KIT_VERSION
     #&& git clone https://github.com/tysik/obstacle_detector.git
     #&& cd /home/developer/catkin_ws \
     #&& catkin build
-RUN cd /home/ && \
-    git clone https://github.com/tysik/obstacle_detector.git 
-RUN cd /home/developer/ && \
-    git clone https://github.com/tysik/obstacle_detector.git 
-RUN cd /home/developer/catkin_ws/ && \
-    git clone https://github.com/tysik/obstacle_detector.git 
 
     
 
