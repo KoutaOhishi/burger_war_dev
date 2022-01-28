@@ -92,10 +92,10 @@ class SeigoRun3:
             print(point)
             #frame_name = "obstacle_" + str(i)
             #self.tf_broadcaster.sendTransform(point,
-                       (0,0,0,0),
-                       rospy.Time.now(),
-                       frame_name,
-                       self.robot_namespace+"map")
+                       #(0,0,0,0),
+                       #rospy.Time.now(),
+                       #frame_name,
+                       #self.robot_namespace+"map")
 
 
     def get_position_from_tf(self, target_link, base_link):
