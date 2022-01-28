@@ -91,7 +91,7 @@ class SeigoRun3:
             point = msg.circles[i].center #障害物の座標を取得
             frame_name = "obstacle_" + str(i)
             self.tf_broadcaster.sendTransform((point.x, point.y, point.z),
-                       tf.transformations.quaternion_from_euler(0, 0, 0,
+                       tf.transformations.quaternion_from_euler(0, 0, 0),
                        rospy.Time.now(),
                        frame_name,
                        "map")
