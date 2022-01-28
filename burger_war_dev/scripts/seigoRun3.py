@@ -88,7 +88,7 @@ class SeigoRun3:
         num_obstacles = len(msg.circles)
         point = Point()
         for i in range(num_obstacles):
-            point = msg.circles.center #障害物の座標を取得
+            point = msg.circles[i].center #障害物の座標を取得
             frame_name = "obstacle_" + str(i)
             self.tf_broadcaster.sendTransform(point,
                        (0,0,0,0),
