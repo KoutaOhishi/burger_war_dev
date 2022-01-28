@@ -24,7 +24,7 @@ from geometry_msgs.msg import Pose, Point, Quaternion, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Image
 from sensor_msgs.msg import Imu
 from cv_bridge import CvBridge, CvBridgeError
-from obstacle_detector.msg import Obstacles, SegmentObstcle, CircleObstacle
+from obstacle_detector.msg import Obstacles, SegmentObstacle, CircleObstacle
 
 from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
