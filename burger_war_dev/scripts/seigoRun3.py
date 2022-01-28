@@ -65,13 +65,63 @@ class SeigoRun3:
         #waypointファイルの読み込みと移動開始
         self.waypoint = self.load_waypoint()
         self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
-    
+
+        #tfのlistenerとbroadcasterの生成
+        self.tf_listener = tf.TransformListener()
+        self.tf_broadcaster = tf.TransformBroadcaster()
+
     def process(self):
         move_base_status = self.move_base_client.get_state()
-        print(move_base_status)
+        
+        #ゴールしたら
         if move_base_status == actionlib.GoalStatus.SUCCEEDED:
             print("Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
+    
+    def detect_enemy_from_lidar(self):
+        time_diff = rospy.Time.now().to_sec() - self.enemy_position.header.stamp.to_sec()
+        if time_diff > self.enemy_time_tolerance:   # 敵情報が古かったら無視
+            self.detect_counter = 0
+            return False, 0.0, 0.0
+        else:
+            self.detect_counter = self.detect_counter+1
+            if self.detect_counter < self.counter_th:
+                return False, 0.0, 0.0
+
+        map_topic = self.robot_namespace+"map"
+        baselink_topic = self.robot_namespace+"base_link"
+        trans, rot, vaild = self.get_position_from_tf(map_topic, baselink_topic)
+        
+        if vaild == False:
+            return False, 0.0, 0.0
+        
+        self.tf_broadcaster.sendTransform(trans,
+                       rot,
+                       rospy.Time.now(),
+                       "enemy_bot",
+                       map_topic)
+
+        dx = self.enemy_position.pose.pose.position.x - trans[0]
+        dy = self.enemy_position.pose.pose.position.y - trans[1]
+        enemy_distance = math.sqrt(dx*dx+dy*dy)
+
+        _, _, yaw = tf.transformations.euler_from_quaternion(rot)
+        enemy_direction = math.atan2(dy, dx)
+        enemy_direction_diff = angles.normalize_angle(enemy_direction-yaw)
+
+        return True, enemy_distance, enemy_direction_diff
+
+    def get_position_from_tf(self, target_link, base_link):
+        trans = []
+        rot = []
+        try:
+            (trans, rot) = self.tf_listener.lookupTransform(
+                target_link, base_link, rospy.Time(0))
+            return trans, rot, True
+        
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            rospy.logwarn('tf error')
+            return trans, rot, False
 
     def send_goal_to_move_base(self, waypoint):
         rospy.loginfo("コストマップをクリアします")
@@ -190,6 +240,7 @@ def main():
         node.get_war_state()
 
         node.process()
+        node.detect_enemy_from_lidar()
 
         loop_rate.sleep()
 
