@@ -89,13 +89,12 @@ class SeigoRun3:
         point = Point()
         for i in range(num_obstacles):
             point = msg.circles[i].center #障害物の座標を取得
-            print(point)
-            #frame_name = "obstacle_" + str(i)
-            #self.tf_broadcaster.sendTransform(point,
-                       #(0,0,0,0),
-                       #rospy.Time.now(),
-                       #frame_name,
-                       #self.robot_namespace+"map")
+            frame_name = "obstacle_" + str(i)
+            self.tf_broadcaster.sendTransform((point.x, point.y, point.z),
+                       (0,0,0,0),
+                       rospy.Time.now(),
+                       frame_name,
+                       self.robot_namespace+"map")
 
 
     def get_position_from_tf(self, target_link, base_link):
