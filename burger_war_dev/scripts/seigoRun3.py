@@ -85,7 +85,8 @@ class SeigoRun3:
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
     
     def obstacle_detector_callback(self, msg):
-        print(msg.circles)
+        num_obstacles = len(msg.circles)
+        print("num_obstacles:"+str(num_obstacles))
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
