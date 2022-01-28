@@ -94,7 +94,7 @@ class SeigoRun3:
                        tf.transformations.quaternion_from_euler(0, 0, 0,
                        rospy.Time.now(),
                        frame_name,
-                       self.robot_namespace+"map")
+                       "map")
 
 
     def get_position_from_tf(self, target_link, base_link):
