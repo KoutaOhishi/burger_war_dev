@@ -56,12 +56,7 @@ def tf_static_broadcaster():
         transform_stamped.transform.rotation.w = euler[3] #w
 
         #broadcaster.sendTransform(transform_stamped)
-        broadcaster.sendTransform(
-            (float(target_markers[i][0]),float(target_markers[i][1]),0.00),
-            (0,0,0,1),
-            rospy.Time.now(),
-            "target_"+str(i),
-            "map")
+        broadcaster.sendTransform((float(target_markers[i][0]),float(target_markers[i][1]),0.00), (0,0,0,1), rospy.Time.now(), "target_"+str(i), "map")
 
         print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
 
