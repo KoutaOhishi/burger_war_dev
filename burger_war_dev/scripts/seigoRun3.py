@@ -52,7 +52,9 @@ class SeigoRun3:
         self.my_pose_y = 1000              # init value
         self.my_direction_th = math.pi*100 # init value
 
-        self.Obstacles = Obstacles()
+        #敵検出の情報
+        rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
+        self.enemy_position = Odometry()
 
         #move_baseの準備
         self.move_base_client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
@@ -73,8 +75,9 @@ class SeigoRun3:
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
 
-        #obstacle_detectorのサブスクライバの生成
-        self.obstacle_detector_subscriber = rospy.Subscriber("/obstacles", Obstacles, self.obstacle_detector_callback)
+    def enemy_position_callback(self, msg):
+        self.enemy_position = msg
+        
 
     def process(self):
         move_base_status = self.move_base_client.get_state()
@@ -84,18 +87,6 @@ class SeigoRun3:
             print("Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
     
-    def obstacle_detector_callback(self, msg):
-        num_obstacles = len(msg.circles)
-        point = Point()
-        for i in range(num_obstacles):
-            point = msg.circles[i].center #障害物の座標を取得
-            frame_name = "obstacle_" + str(i)
-            self.tf_broadcaster.sendTransform((point.x, point.y, point.z),
-                       tf.transformations.quaternion_from_euler(0, 0, 0),
-                       rospy.Time.now(),
-                       frame_name,
-                       "map")
-
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
