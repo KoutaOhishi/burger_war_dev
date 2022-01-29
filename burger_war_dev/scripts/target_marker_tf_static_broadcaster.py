@@ -52,6 +52,7 @@ def tf_static_broadcaster():
         transform_stamped.transform.rotation = tf.transformations.quaternion_from_euler(0.00, 0.00, 0.00)
 
         broadcaster.sendTransform(transform_stamped)
+        print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
 
     rospy.spin()
 
