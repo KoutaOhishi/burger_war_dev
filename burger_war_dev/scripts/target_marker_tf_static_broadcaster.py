@@ -38,6 +38,7 @@ def tf_static_broadcaster():
     for i in range(len(target_markers)):
         if i <= 5:
             #0~5はロボットについてるマーカーなので、static broadcastはしない
+            pass
             
         transform_stamped = TransformStamped()
 
