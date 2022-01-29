@@ -4,7 +4,7 @@
 #http://wiki.ros.org/tf2/Tutorials/Writing%20a%20tf2%20static%20broadcaster%20%28Python%29
 
 import rospy
-import tf2
+import tf, tf2_ros
 from geometry_msgs.msg import Pose, Point, Quaternion, TransformStamped
 
 # marker_idx, [x,y]
@@ -33,7 +33,7 @@ def tf_static_broadcaster():
     rospy.init_node("tf_static_broadcaster")
     rospy.loginfo("[tf_static_broadcaster]マーカの座標をbroadcastします")
 
-    broadcaster = tf.StaticTransformBroadcaster()
+    broadcaster = tf2_ros.StaticTransformBroadcaster()
 
     for i in range(len(target_markers)):
         if i in [0,1,2,3,4,5]:
