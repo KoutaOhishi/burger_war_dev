@@ -200,7 +200,8 @@ class SeigoRun3:
 
         # 未取得のターゲット（ロボットについているものは除く）が無い場合
         if len(unaquired_targets) == 0:
-           return -1 
+            print("[seigoRun3]近くに取得可能なターゲットはありません")
+            return -1 
         
         dist_between_target_list = []
         base_frame_name = "odom"
