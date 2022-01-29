@@ -39,10 +39,10 @@ class Waypoints:
             print("[waypoint]next lap!!!!!!")
             self.number = 0
 
-        print("[waypoint]search target !!!!!!", self.all_field_score)
+        #print("[waypoint]search target !!!!!!", self.all_field_score)
         for i in range(self.number, len(self.points))+range(self.number):
             score_num = self.points[i][3]
-            print("[waypoint]"+str(score_num))
+            #print("[waypoint]"+str(score_num))
 
             # 得点と関係ないwaypoint
             if score_num == -1:
@@ -57,7 +57,7 @@ class Waypoints:
                 continue
             else:
                 # if not get score, go to target
-                print("[waypoint]"+str(i))
+                print("[waypoint]"+str(i)+"/"+str(len(self.points)))
                 self.number = i
                 return self.points[i][0:3]
 
