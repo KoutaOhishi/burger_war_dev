@@ -51,9 +51,9 @@ def tf_static_broadcaster():
 
         euler = tf.transformations.quaternion_from_euler(0.00, 0.00, 0.00)
         transform_stamped.transform.rotation.x = euler[0] #x
-        transform_stamped.transform.rotation.y = euler[0] #y
-        transform_stamped.transform.rotation.z = euler[0] #z
-        transform_stamped.transform.rotation.w = euler[0] #w
+        transform_stamped.transform.rotation.y = euler[1] #y
+        transform_stamped.transform.rotation.z = euler[2] #z
+        transform_stamped.transform.rotation.w = euler[3] #w
 
         broadcaster.sendTransform(transform_stamped)
         print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
