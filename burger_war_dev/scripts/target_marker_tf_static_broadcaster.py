@@ -61,9 +61,8 @@ def tf_static_broadcaster():
             (0,0,0,1),
             rospy.Time.now(),
             "target_"+str(i),
-            "map"
-        )
-        
+            "map")
+
         print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
 
     rospy.spin()
