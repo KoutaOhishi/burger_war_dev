@@ -90,9 +90,9 @@ namespace following_planner
 		if (xy_reached && yaw_reached)
 		{
 			status_ = GoalStatus::GOALREACHED;
-			ROS_INFO_STREAM("reached goal !!");
-			ROS_INFO_STREAM("distance: " << xy);
-			ROS_INFO_STREAM("yaw diff:" << yaw);
+			ROS_INFO_STREAM("[following_planner]reached goal !!");
+			ROS_INFO_STREAM("[following_planner]distance: " << xy);
+			ROS_INFO_STREAM("[following_planner]yaw diff:" << yaw);
 			return true;
 		}
 		else if (xy_reached && !yaw_reached) //|| status_ == GoalStatus::ROTATING)
@@ -138,7 +138,7 @@ namespace following_planner
 		}
 		catch (tf2::TransformException &ex)
 		{
-			ROS_WARN("%s", ex.what());
+			ROS_WARN("[following_planner]%s", ex.what());
 			ros::Duration(1.0).sleep();
 			return robot_position_;
 		}
@@ -184,7 +184,7 @@ namespace following_planner
 		}
 		else
 		{
-			ROS_WARN("unknown status !!");
+			ROS_WARN("[following_planner]unknown status !!");
 			cmd_vel.linear.x = 0.0;
 			cmd_vel.angular.z = 0.0;
 			return true;
@@ -246,18 +246,18 @@ namespace following_planner
 		double direction = 1;
 		if (std::abs(direction_diff) < rotate_angle_th_ * M_PI / 180)
 		{
-			ROS_INFO("move forward");
+			//ROS_INFO("[following_planner]move forward");
 			direction = 1;
 		}
 		else if (std::abs(direction_diff) > (180 - rotate_angle_th_) * M_PI / 180)
 		{
-			ROS_INFO("move backwaord");
+			//ROS_INFO("[following_planner]move backward");
 			direction = -1;
 			direction_diff = angles::normalize_angle(direction_diff - M_PI);
 		}
 		else
 		{
-			ROS_INFO("spin turn");
+			//ROS_INFO("[following_planner]spin turn");
 			geometry_msgs::PoseStamped target;
 			target.header.frame_id = map_frame_;
 			target.pose.position = look_ahead;
@@ -286,7 +286,7 @@ namespace following_planner
 
 		if (std::abs(distance) < DBL_EPSILON)
 		{
-			ROS_WARN_STREAM("zero division. look ahead is too near so stop.");
+			ROS_WARN_STREAM("[following_planner]zero division. look ahead is too near so stop.");
 			cmd_vel.linear.x = 0.0;
 			cmd_vel.angular.z = 0.0;
 			return cmd_vel;
@@ -294,7 +294,7 @@ namespace following_planner
 
 		if (std::abs(sin_val) < DBL_EPSILON)
 		{
-			ROS_WARN_STREAM("yaw diff is too small");
+			ROS_WARN_STREAM("y[following_planner]aw diff is too small");
 			cmd_vel.linear.x = vx;
 			cmd_vel.angular.z = 0;
 			return cmd_vel;
@@ -303,7 +303,7 @@ namespace following_planner
 		double omega = 2.0 * vx * sin_val / distance;
 		if (std::abs(omega) > vw_max_)
 		{
-			ROS_INFO_STREAM("omega > " << vw_max_);
+			ROS_INFO_STREAM("[following_planner]omega > " << vw_max_);
 			omega = ((omega > 0) - (omega < 0)) * vw_max_;
 			vx = omega * distance / sin_val;
 		}
