@@ -186,10 +186,10 @@ class SeigoRun3:
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
     def get_nearest_unaquired_target_idx(self):
-        rospy.loginfo("[seigoRun3]Get nearest target")
-        unaquired_targets = []
+        #rospy.loginfo("[seigoRun3]Get nearest target")
+        unaquired_target_idx_list = []
         all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
-        print("最短のターゲットを探索します")
+        
         for idx in range(6, 18): #全てのターゲットに対して、誰が取っているかを確認
             # idx 0~5はロボットについているマーカーなので無視
 
@@ -197,18 +197,18 @@ class SeigoRun3:
                 pass #自分が取得しているのでパス
 
             else:
-                unaquired_targets.append(idx)
+                unaquired_target_idx_list.append(idx)
 
-        print("未取得のターゲットは"+str(len(unaquired_targets))+"個です")
+        print("未取得のターゲットは"+str(len(unaquired_target_idx_list))+"個です")
         # 未取得のターゲット（ロボットについているものは除く）が無い場合
-        if len(unaquired_targets) == 0:
+        if len(unaquired_target_idx_list) == 0:
             print("[seigoRun3]近くに取得可能なターゲットはありません")
             return -1 
         
         dist_between_target_list = []
         base_frame_name = "odom"
         # 未取得のターゲットから自機までの距離を計算し、リストに格納する
-        for i, target_idx in enumerate(unaquired_targets):
+        for i, target_idx in enumerate(unaquired_target_idx_list):
             try:
                 self.tf_listener.waitForTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0), rospy.Duration(1.0))
                 (trans, hoge) = self.tf_listener.lookupTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0))
@@ -219,7 +219,7 @@ class SeigoRun3:
                 rospy.logwarn("Except:[seigoRun3.get_nearest_unaquired_target_idx]")
                 rospy.logwarn(str(e))
         
-        nearest_target_idx = dist_between_target_list.index(min(dist_between_target_list))
+        nearest_target_idx = unaquired_target_idx_list[dist_between_target_list.index(min(dist_between_target_list))]
         rospy.loginfo("[seigoRun3]最も近いターゲットは target_"+str(nearest_target_idx)+" です")
 
         return nearest_target_idx
@@ -306,7 +306,7 @@ def main():
         node.get_war_state()
 
         node.process()
-        nearest_target_idx = node.get_nearest_unaquired_target_idx()
+        node.get_nearest_unaquired_target_idx()
 
         loop_rate.sleep()
 
