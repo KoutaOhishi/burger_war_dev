@@ -67,10 +67,9 @@ class SeigoRun3:
         rospy.wait_for_service("/move_base/clear_costmaps")
         self.clear_costmap = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
 
-        #waypointファイルの読み込みと移動開始
+        #waypointファイルの読み込み
         self.waypoint = self.load_waypoint()
-        self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
-
+        
         #tfのlistenerとbroadcasterの生成
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
@@ -80,13 +79,16 @@ class SeigoRun3:
         
 
     def process(self):
+        self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
         move_base_status = self.move_base_client.get_state()
         
         #ゴールしたら
         if move_base_status == actionlib.GoalStatus.SUCCEEDED:
             rospy.loginfo("[seigoRun3]Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
-    
+
+        else:
+            rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
@@ -155,7 +157,7 @@ class SeigoRun3:
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
     def get_war_state(self):
-        rospy.loginfo("[seigoRun3]Get war_state")
+        #rospy.loginfo("[seigoRun3]Get war_state")
         req = requests.get(self.judge_server_url+"/warState")
         dic = req.json()
 
