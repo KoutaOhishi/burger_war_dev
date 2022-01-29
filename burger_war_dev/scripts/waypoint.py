@@ -29,7 +29,7 @@ class Waypoints:
                     point[3] = int(point[3])
                 else:
                     point[3] = int(point[4])
-                print("   "+point)
+                print("   "+str(point))
                 self.points.append(point[0:4])
 
     def get_next_waypoint(self):
@@ -42,7 +42,7 @@ class Waypoints:
         print("[waypoint]search target !!!!!!", self.all_field_score)
         for i in range(self.number, len(self.points))+range(self.number):
             score_num = self.points[i][3]
-            print score_num
+            print("[waypoint]"+str(score_num))
 
             # 得点と関係ないwaypoint
             if score_num == -1:
@@ -57,7 +57,7 @@ class Waypoints:
                 continue
             else:
                 # if not get score, go to target
-                print i
+                print("[waypoint]"+str(i))
                 self.number = i
                 return self.points[i][0:3]
 
