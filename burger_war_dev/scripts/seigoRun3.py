@@ -28,6 +28,30 @@ from obstacle_detector.msg import Obstacles, SegmentObstacle, CircleObstacle
 
 from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
+#      6(0.65, 0.5)                   8(0.65, -0.5)
+#   [BLOCK]     14(0.25, 0.0)      [BLOCK]
+#      7(0.4, 0.5)                   9(0.4, -0.5)
+#          16(0.0, 0.25) [BLOCK] 15(0.0, -0.25)
+# 10(-0.40, 0.5)                  12(-0.40, -0.5)
+#   [BLOCK]     17(-0.25, 0.0)      [BLOCK]
+# 11(-0.65, 0.5)                 13(-0.65, -0.5)
+#
+#  coordinate systemn
+#            ^ X  blue bot
+#            |
+#            |
+#     Y <----|-----
+#            |
+#            |
+#            |    red bot
+#
+# ----------------------------------------
+#        Back 0                  Back 3
+#   R 2[enemy_bot(b)]L 1   R 5[my_bot(r)]L 4
+#        Front                   Front
+
+
+
 class SeigoRun3:
 
     def __init__(self):
@@ -211,10 +235,10 @@ class SeigoRun3:
             self.my_body_remain = np.sum(self.all_field_score[3:6])
             self.enemy_body_remain = np.sum(self.all_field_score[0:3])
         
-        print("----------")
-        for i in range(6,18): #6~17
-            print("[%s]:%s", str(i), str(self.all_field_score[i]))    
-        print("----------")
+        #print("----------")
+        #for i in range(6,18): #6~17
+        #    print(str(i), str(self.all_field_score[i])    
+        #print("----------")
 
         #-------------------------------------------#
         # 現在のスコアや敵ロボットとの関係から戦略を決定する
@@ -226,7 +250,7 @@ class SeigoRun3:
         #-------------------------------------------#
         def patrol(self):
             pass
-        
+
 def main():
     rospy.init_node("seigo_run3")
     rospy.loginfo("[seigoRun3]seigoRun3 is running")
