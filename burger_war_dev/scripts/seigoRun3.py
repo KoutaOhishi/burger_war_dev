@@ -260,7 +260,7 @@ def main():
         #some processes
         node.get_war_state()
 
-        node.process()
+        #node.process()
         
         loop_rate.sleep()
 
