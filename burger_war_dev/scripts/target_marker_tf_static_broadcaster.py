@@ -35,6 +35,8 @@ def tf_static_broadcaster():
     rospy.init_node("tf_static_broadcaster")
     rospy.loginfo("[tf_static_broadcaster]マーカの座標をbroadcastします")
 
+    transform_stamped_list = []
+
     for i in range(len(target_markers)):
         if i <= 5:
             #0~5はロボットについてるマーカーなので、static broadcastはしない
@@ -57,10 +59,10 @@ def tf_static_broadcaster():
             transform_stamped.transform.rotation.z = euler[2] #z
             transform_stamped.transform.rotation.w = euler[3] #w
 
-            broadcaster.sendTransform(transform_stamped)
-            
-            print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
+            transform_stamped_list.append(transform_stamped)
+            #print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
 
+    broadcaster.sendTransform(transform_stamped_list)
     rospy.spin()
 
 if __name__ == "__main__":
