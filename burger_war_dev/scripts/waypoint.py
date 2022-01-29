@@ -16,7 +16,7 @@ class Waypoints:
         self.next_target_idx = -1
         self.all_field_score = np.ones([18])  # field score state
         self._load_waypoints(path, side)
-        print ('number of waypoints: '+str(len(self.points)))
+        print ('[waypoint]number of waypoints: '+str(len(self.points)))
 
     def _load_waypoints(self, path, side):
         with open(path) as f:
@@ -29,17 +29,17 @@ class Waypoints:
                     point[3] = int(point[3])
                 else:
                     point[3] = int(point[4])
-                print point
+                print("   "+point)
                 self.points.append(point[0:4])
 
     def get_next_waypoint(self):
         self.number = self.number+1
         if self.number == len(self.points):
             self.Waypoints_Lap = self.Waypoints_Lap+1
-            print("next lap!!!!!!")
+            print("[waypoint]next lap!!!!!!")
             self.number = 0
 
-        print("search target !!!!!!", self.all_field_score)
+        print("[waypoint]search target !!!!!!", self.all_field_score)
         for i in range(self.number, len(self.points))+range(self.number):
             score_num = self.points[i][3]
             print score_num
@@ -61,7 +61,7 @@ class Waypoints:
                 self.number = i
                 return self.points[i][0:3]
 
-        print("got all field score !!!")
+        print("[waypoint]got all field score !!!")
         return self.points[self.number][0:3]
 
     def get_current_waypoint(self):
