@@ -90,9 +90,9 @@ namespace following_planner
 		if (xy_reached && yaw_reached)
 		{
 			status_ = GoalStatus::GOALREACHED;
-			ROS_INFO_STREAM("[following_planner]reached goal !!");
-			ROS_INFO_STREAM("[following_planner]distance: " << xy);
-			ROS_INFO_STREAM("[following_planner]yaw diff:" << yaw);
+			//ROS_INFO_STREAM("[following_planner]reached goal !!");
+			//ROS_INFO_STREAM("[following_planner]distance: " << xy);
+			//ROS_INFO_STREAM("[following_planner]yaw diff:" << yaw);
 			return true;
 		}
 		else if (xy_reached && !yaw_reached) //|| status_ == GoalStatus::ROTATING)
@@ -241,7 +241,7 @@ namespace following_planner
 		GetRPY(self_position.pose, roll, pitch, yaw);
 		double direction_diff = angles::normalize_angle(to_look_ahead - yaw);
 
-		std::cout << "[following_planner]direction_diff:" << direction_diff << std::endl;
+		//std::cout << "[following_planner]direction_diff:" << direction_diff << std::endl;
 		geometry_msgs::Twist cmd_vel;
 		double direction = 1;
 		if (std::abs(direction_diff) < rotate_angle_th_ * M_PI / 180)
@@ -262,7 +262,7 @@ namespace following_planner
 			target.header.frame_id = map_frame_;
 			target.pose.position = look_ahead;
 			GetQuaternionMsg(0.0, 0.0, to_look_ahead, target.pose.orientation);
-			std::cout << direction_diff * 180 / M_PI << std::endl;
+			//std::cout << direction_diff * 180 / M_PI << std::endl;
 			if (std::abs(direction_diff) >= 90 * M_PI / 180)
 			{
 				ROS_INFO_STREAM("[following_planner]adjust backward");
