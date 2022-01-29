@@ -241,7 +241,7 @@ namespace following_planner
 		GetRPY(self_position.pose, roll, pitch, yaw);
 		double direction_diff = angles::normalize_angle(to_look_ahead - yaw);
 
-		std::cout << direction_diff << std::endl;
+		std::cout << "[following_planner]direction_diff:" << direction_diff << std::endl;
 		geometry_msgs::Twist cmd_vel;
 		double direction = 1;
 		if (std::abs(direction_diff) < rotate_angle_th_ * M_PI / 180)
@@ -265,7 +265,7 @@ namespace following_planner
 			std::cout << direction_diff * 180 / M_PI << std::endl;
 			if (std::abs(direction_diff) >= 90 * M_PI / 180)
 			{
-				std::cout << "adjust backward" << std::endl;
+				ROS_INFO_STREAM("[following_planner]adjust backward");
 				geometry_msgs::PoseStamped self_position_dummy = self_position;
 				double roll, pitch, yaw;
 				GetRPY(self_position.pose, roll, pitch, yaw);
