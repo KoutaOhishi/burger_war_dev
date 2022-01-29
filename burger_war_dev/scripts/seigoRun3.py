@@ -98,6 +98,10 @@ class SeigoRun3:
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
 
+        #直接車輪に制御命令を送るpublisherの制限
+        self.direct_twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+
+
     def enemy_position_callback(self, msg):
         self.enemy_position = msg
         
@@ -113,6 +117,7 @@ class SeigoRun3:
 
         else:
             rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
+
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
@@ -180,6 +185,43 @@ class SeigoRun3:
 
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
+    def get_nearest_unaquired_target_idx(self):
+        unaquired_targets = []
+        all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
+
+        for idx in range(6, 18): #全てのターゲットに対して、誰が取っているかを確認
+            # idx 0~5はロボットについているマーカーなので無視
+
+            if all_field_score[idx] == 0:
+                pass #自分が取得しているのでパス
+
+            else:
+                unaquired_targets.append(idx)
+
+        # 未取得のターゲット（ロボットについているものは除く）が無い場合
+        if len(unaquired_targets) == 0:
+           return -1 
+        
+        dist_between_target_list = []
+        base_frame_name = "odom"
+        # 未取得のターゲットから自機までの距離を計算し、リストに格納する
+        for i, target_idx in enumerate(unaquired_targets):
+            try:
+                self.tf_listener.waitForTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0), rospy.Duration(1.0))
+                (trans, hoge) = self.tf_listener.lookupTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0))
+                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+                dist_between_target_list.append(dist)
+
+            except Exception as e:
+                rospy.logwarn("Except:[seigoRun3.get_nearest_unaquired_target_idx]")
+                rospy.logwarn(str(e))
+        
+        nearest_target_idx = dist_between_target_list.index(min(dist_between_target_list))
+        rospy.loginfo("[seigoRun3]最も近いターゲットは target_"+str(nearest_target_idx)+" です")
+
+        return nearest_target_idx
+
+
     def get_war_state(self):
         #rospy.loginfo("[seigoRun3]Get war_state")
         req = requests.get(self.judge_server_url+"/warState")
@@ -206,7 +248,7 @@ class SeigoRun3:
                 self.all_field_score[idx] = 1
             elif target_state == self.my_side: #自分がターゲットを取得している
                 self.all_field_score[idx] = 0
-            else: #的がターゲットを取得している
+            else: #敵がターゲットを取得している
                 self.all_field_score[idx] = 2
 
             if self.all_field_score[idx] != self.all_field_score_prev[idx]: #ターゲット情報に更新があるかどうか
@@ -260,8 +302,9 @@ def main():
         #some processes
         node.get_war_state()
 
-        #node.process()
-        
+        node.process()
+        node.get_nearest_unaquired_target_idx
+
         loop_rate.sleep()
 
 if __name__ == "__main__":
