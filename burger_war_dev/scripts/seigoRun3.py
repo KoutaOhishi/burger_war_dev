@@ -112,11 +112,11 @@ class SeigoRun3:
         
         #ゴールしたら
         if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-            rospy.loginfo("[seigoRun3]Go to next waypoint")
+            #rospy.loginfo("[seigoRun3]Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
 
-        else:
-            rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
+        #else:
+            #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
 
 
     def get_position_from_tf(self, target_link, base_link):
@@ -132,7 +132,7 @@ class SeigoRun3:
             return trans, rot, False
 
     def send_goal_to_move_base(self, waypoint):
-        rospy.loginfo("[seigoRun3]コストマップをクリアします")
+        #rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
 
         goal = MoveBaseGoal()
@@ -148,7 +148,7 @@ class SeigoRun3:
         goal.target_pose.header.stamp = rospy.Time.now()
         
         self.move_base_client.send_goal(goal)
-        rospy.loginfo("[seigoRun3]move_baseサーバにwaypointを送信しました")
+        #rospy.loginfo("[seigoRun3]move_baseサーバにwaypointを送信しました")
         rospy.sleep(0.5)
 
     def load_waypoint(self):
