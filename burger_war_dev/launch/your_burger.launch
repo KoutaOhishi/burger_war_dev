@@ -46,6 +46,10 @@
     <arg name="robot_namespace" default="$(arg robot_namespace)"/>
   </include>
 
+  <!-- obstacle_detectorを用いた敵検出ノードを起動-->
+  <node pkg="burger_war_dev" type="enemy_detector.py" name="enemy_detector_node" output="screen">
+    <param name="robot_namespace" value="$(arg robot_namespace)"/>
+  </node>
 
 </launch>
 
