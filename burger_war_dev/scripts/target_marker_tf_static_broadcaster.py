@@ -43,7 +43,7 @@ def tf_static_broadcaster():
 
         transform_stamped.header.stamp = rospy.Time.now()
         transform_stamped.header.frame_id = "map"
-        transform_stamped.header.child_frame_id = "target_"+str(i)
+        transform_stamped.child_frame_id = "target_"+str(i)
 
         transform_stamped.transform.translation.x = float(target_markers[i][0])
         transform_stamped.transform.translation.y = float(target_markers[i][1])
