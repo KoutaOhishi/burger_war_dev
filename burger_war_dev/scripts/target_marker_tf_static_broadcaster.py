@@ -36,9 +36,9 @@ def tf_static_broadcaster():
     rospy.loginfo("[tf_static_broadcaster]マーカの座標をbroadcastします")
 
     for i in range(len(target_markers)):
-        if i in [0,1,2,3,4,5]:
-            #1~5はロボットについてるマーカーなので、static broadcastはしない
-            pass
+        if i <= 5:
+            #0~5はロボットについてるマーカーなので、static broadcastはしない
+            
         transform_stamped = TransformStamped()
 
         transform_stamped.header.stamp = rospy.Time.now()
