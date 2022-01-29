@@ -304,7 +304,7 @@ def main():
         node.get_war_state()
 
         node.process()
-        node.get_nearest_unaquired_target_idx
+        nearest_target_idx = node.get_nearest_unaquired_target_idx
 
         loop_rate.sleep()
 
