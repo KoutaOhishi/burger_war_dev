@@ -4,7 +4,7 @@
 #http://wiki.ros.org/tf2/Tutorials/Writing%20a%20tf2%20static%20broadcaster%20%28Python%29
 
 import rospy
-import tf
+import tf2
 from geometry_msgs.msg import Pose, Point, Quaternion, TransformStamped
 
 # marker_idx, [x,y]
