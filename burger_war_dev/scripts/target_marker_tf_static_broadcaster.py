@@ -37,13 +37,13 @@ def tf_static_broadcaster():
 
     for i in range(len(target_markers)):
         if i in [0,1,2,3,4,5]:
-            #1~5はロボットについてるマーカーなので、static broadcastはしない
+            #1~5はロボットについてるマーカーなので、broadcastはしない
             pass
         transform_stamped = TransformStamped()
 
         transform_stamped.header.stamp = rospy.Time.now()
-        transform_stamped.header.frame_id = "map"
-        transform_stamped.child_frame_id = "target_"+str(i)
+        transform_stamped.header.frame_id = "target_"+str(i)
+        transform_stamped.child_frame_id = "map"
 
         transform_stamped.transform.translation.x = float(target_markers[i][0])
         transform_stamped.transform.translation.y = float(target_markers[i][1])
