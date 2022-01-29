@@ -49,10 +49,7 @@ def tf_static_broadcaster():
         transform_stamped.transform.translation.y = float(target_markers[i][1])
         transform_stamped.transform.translation.z = 0.00
 
-        transform_stamped.transform.rotation.x = 0.00
-        transform_stamped.transform.rotation.y = 0.00
-        transform_stamped.transform.rotation.z = 0.00
-        transform_stamped.transform.rotation.w = 0.00
+        transform_stamped.transform.rotation = tf.transformations.quaternion_from_euler(0.00, 0.00, 0.00)
 
         broadcaster.sendTransform(transform_stamped)
 
