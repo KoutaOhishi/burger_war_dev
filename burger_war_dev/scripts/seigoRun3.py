@@ -253,7 +253,6 @@ class SeigoRun3:
                 self.all_field_score[idx] = 2
 
             if self.all_field_score[idx] != self.all_field_score_prev[idx]: #ターゲット情報に更新があるかどうか
-                print("target_"+str(idx)+"に更新があります")
                 if self.all_field_score[idx] == 2: #敵がターゲットを取得した
                     if self.all_field_score_prev[idx] == 1:
                         print("[seigoRun3]敵がID:"+str(idx)+"のターゲットを取得した")
@@ -262,7 +261,7 @@ class SeigoRun3:
                     else:
                         pass
                 
-                elif self.all_field_score[idx] == 1: #自分がターゲットを取得した
+                elif self.all_field_score[idx] == 0: #自分がターゲットを取得した
                     if self.all_field_score_prev[idx] == 2: 
                         print("[seigoRun3]敵が取得したID："+str(idx)+"のターゲットを奪った")
                     elif self.all_field_score_prev[idx] == 1:
