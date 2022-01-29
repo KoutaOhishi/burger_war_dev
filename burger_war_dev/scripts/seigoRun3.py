@@ -188,7 +188,7 @@ class SeigoRun3:
     def get_nearest_unaquired_target_idx(self):
         unaquired_targets = []
         all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
-
+        print("最短のターゲットを探索します")
         for idx in range(6, 18): #全てのターゲットに対して、誰が取っているかを確認
             # idx 0~5はロボットについているマーカーなので無視
 
@@ -198,6 +198,7 @@ class SeigoRun3:
             else:
                 unaquired_targets.append(idx)
 
+        print("未取得のターゲットは"+str(len(unaquired_targets))+"個です")
         # 未取得のターゲット（ロボットについているものは除く）が無い場合
         if len(unaquired_targets) == 0:
             print("[seigoRun3]近くに取得可能なターゲットはありません")
