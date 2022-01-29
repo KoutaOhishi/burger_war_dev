@@ -225,7 +225,8 @@ class SeigoRun3:
         # ：障害物の影に隠れる
         #-------------------------------------------#
         def patrol(self):
-
+            pass
+        
 def main():
     rospy.init_node("seigo_run3")
     rospy.loginfo("[seigoRun3]seigoRun3 is running")
