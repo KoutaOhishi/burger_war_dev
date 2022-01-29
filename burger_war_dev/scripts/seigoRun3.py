@@ -186,6 +186,7 @@ class SeigoRun3:
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
     def get_nearest_unaquired_target_idx(self):
+        rospy.loginfo("[seigoRun3]Get nearest target")
         unaquired_targets = []
         all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
         print("最短のターゲットを探索します")
@@ -284,16 +285,16 @@ class SeigoRun3:
         #    print(str(i), str(self.all_field_score[i])    
         #print("----------")
 
-        #-------------------------------------------#
-        # 現在のスコアや敵ロボットとの関係から戦略を決定する
-        #
-        # ：決められたルートを巡回
-        # ：一番近くにあるマーカを取得する
-        # ：敵に正対する
-        # ：障害物の影に隠れる
-        #-------------------------------------------#
-        def patrol(self):
-            pass
+    #-------------------------------------------#
+    # 現在のスコアや敵ロボットとの関係から戦略を決定する
+    #
+    # ：決められたルートを巡回
+    # ：一番近くにあるマーカを取得する
+    # ：敵に正対する
+    # ：障害物の影に隠れる
+    #-------------------------------------------#
+    def patrol(self):
+        pass
 
 def main():
     rospy.init_node("seigo_run3")
