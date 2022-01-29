@@ -211,6 +211,20 @@ class SeigoRun3:
             self.my_body_remain = np.sum(self.all_field_score[3:6])
             self.enemy_body_remain = np.sum(self.all_field_score[0:3])
         
+        print("----------")
+        for i in range(6,18): #6~17
+            print("[%s]:%s", str(i), str(self.all_field_score[i]))    
+        print("----------")
+
+        #-------------------------------------------#
+        # 現在のスコアや敵ロボットとの関係から戦略を決定する
+        #
+        # ：決められたルートを巡回
+        # ：一番近くにあるマーカを取得する
+        # ：敵に正対する
+        # ：障害物の影に隠れる
+        #-------------------------------------------#
+        def patrol(self):
 
 def main():
     rospy.init_node("seigo_run3")
