@@ -84,7 +84,7 @@ class SeigoRun3:
         
         #ゴールしたら
         if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-            print("Go to next waypoint")
+            rospy.loginfo("[seigoRun3]Go to next waypoint")
             self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
     
 
@@ -101,7 +101,7 @@ class SeigoRun3:
             return trans, rot, False
 
     def send_goal_to_move_base(self, waypoint):
-        rospy.loginfo("コストマップをクリアします")
+        rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
 
         goal = MoveBaseGoal()
@@ -117,7 +117,7 @@ class SeigoRun3:
         goal.target_pose.header.stamp = rospy.Time.now()
         
         self.move_base_client.send_goal(goal)
-        rospy.loginfo("move_baseサーバにwaypointを送信しました")
+        rospy.loginfo("[seigoRun3]move_baseサーバにwaypointを送信しました")
         rospy.sleep(0.5)
 
     def load_waypoint(self):
@@ -155,6 +155,7 @@ class SeigoRun3:
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
     def get_war_state(self):
+        rospy.loginfo("[seigoRun3]Get war_state")
         req = requests.get(self.judge_server_url+"/warState")
         dic = req.json()
 
@@ -185,17 +186,17 @@ class SeigoRun3:
             if self.all_field_score[idx] != self.all_field_score_prev[idx]: #ターゲット情報に更新があるかどうか
                 if self.all_field_score[idx] == 2: #敵がターゲットを取得した
                     if self.all_field_score_prev[idx] == 1:
-                        print("敵がID:"+str(idx)+"のターゲットを取得した")
+                        print("[seigoRun3]敵がID:"+str(idx)+"のターゲットを取得した")
                     elif self.all_field_score_prev[idx] == 0:
-                        print("敵にID:"+str(idx)+"のターゲットを奪われた")
+                        print("[seigoRun3]敵にID:"+str(idx)+"のターゲットを奪われた")
                     else:
                         pass
                 
                 elif self.all_field_score[idx] == 1: #自分がターゲットを取得した
                     if self.all_field_score_prev[idx] == 2: 
-                        print("敵が取得したID："+str(idx)+"のターゲットを奪った")
+                        print("[seigoRun3]敵が取得したID："+str(idx)+"のターゲットを奪った")
                     elif self.all_field_score_prev[idx] == 1:
-                        print("ID:"+str(idx)+"のターゲットを取得した")
+                        print("[seigoRun3]ID:"+str(idx)+"のターゲットを取得した")
                     else:
                         pass
         #フィールドスコアの更新終了
@@ -207,9 +208,11 @@ class SeigoRun3:
         elif self.my_side == "r":
             self.my_body_remain = np.sum(self.all_field_score[3:6])
             self.enemy_body_remain = np.sum(self.all_field_score[0:3])
+        
 
 def main():
     rospy.init_node("seigo_run3")
+    rospy.loginfo("[seigoRun3]seigoRun3 is running")
     node = SeigoRun3()
     loop_rate = rospy.Rate(30) #30Hz
     while not rospy.is_shutdown():
