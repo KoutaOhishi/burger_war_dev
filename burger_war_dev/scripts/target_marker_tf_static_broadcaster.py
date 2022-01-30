@@ -91,6 +91,7 @@ def tf_static_broadcaster():
             transform_stamped.transform.rotation.w = float(target_markers[i][6])
 
             transform_stamped_list.append(transform_stamped)
+            print("idx:"+str(i)+"  "+str(target_markers[i]))
             #print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
 
     broadcaster.sendTransform(transform_stamped_list)
