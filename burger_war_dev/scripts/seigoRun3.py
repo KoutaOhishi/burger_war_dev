@@ -170,7 +170,7 @@ class SeigoRun3:
         rot = []
         try:
             (trans, rot) = self.tf_listener.lookupTransform(
-                target_link, base_link, rospy.Time(0))
+                base_link, target_link, rospy.Time(0))
             return trans, rot, True
         
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
