@@ -117,7 +117,6 @@ class SeigoRun3:
 
     def enemy_position_callback(self, msg):
         self.enemy_position = msg
-        
 
     def process(self):
         #self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
@@ -138,19 +137,40 @@ class SeigoRun3:
 
         elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
             print("ターゲット_"+str(self.target_marker_idx)+"に到着しました。")
+            self.target_marker_idx += 1
+            if(self.target_marker_idx > 17):
+                self.target_marker_idx = 6
+            
+            print("ターゲット_"+str(self.target_marker_idx)+"に向かいます。")
+            self.send_goal_pose_of_target_by_idx(self.target_marker_idx)
 
         else:
-            #nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
-            #target_link = "target_"+str(nearest_target_idx)
             print("ターゲット_"+str(self.target_marker_idx)+"に向かいます。")
-            target_link = "target_"+str(self.target_marker_idx)
+            self.send_goal_pose_of_target_by_idx(self.target_marker_idx)
+
+    def get_position_from_tf(self, target_link, base_link):
+        trans = []
+        rot = []
+        try:
+            (trans, rot) = self.tf_listener.lookupTransform(
+                base_link, target_link, rospy.Time(0))
+            return trans, rot, True
+        
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            rospy.logwarn('tf error')
+            return trans, rot, False
+
+    def send_goal_pose_of_target_by_idx(self, target_idx):
+        #ターゲットのインデックスを引数として渡すとそこまでのGoalPoseをmovebase serverに送ります
+        if target_idx < 6:
+            print("[seigoRun3]0~5のインデックスは受け付けない")
+
+        else:
+            target_link = "target_"+str(target_idx)
             base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
             if res == False:
-                print("ターゲット_"+str(self.target_marker_idx)+"の座標変換に失敗しました")
-                self.target_marker_idx += 1
-                if(self.target_marker_idx > 17):
-                    self.target_marker_idx = 6
+                print("ターゲット_"+str(target_idx)+"の座標変換に失敗しました")
             
             else:
                 goal_pose = Pose()
@@ -164,18 +184,6 @@ class SeigoRun3:
                 print("goal_pose "+str(goal_pose))
                 
                 self.send_goal_to_move_base(goal_pose)
-
-    def get_position_from_tf(self, target_link, base_link):
-        trans = []
-        rot = []
-        try:
-            (trans, rot) = self.tf_listener.lookupTransform(
-                base_link, target_link, rospy.Time(0))
-            return trans, rot, True
-        
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            rospy.logwarn('tf error')
-            return trans, rot, False
 
     def send_goal_to_move_base(self, arg):
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
