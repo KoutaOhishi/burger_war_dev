@@ -199,7 +199,8 @@ class SeigoRun3:
             else:
                 unaquired_target_idx_list.append(idx)
 
-        print("未取得のターゲットは"+str(len(unaquired_target_idx_list))+"個です")
+        print("未取得のターゲットのインデックス",unaquired_target_idx_list)
+        #print("未取得のターゲットは"+str(len(unaquired_target_idx_list))+"個です")
         # 未取得のターゲット（ロボットについているものは除く）が無い場合
         if len(unaquired_target_idx_list) == 0:
             print("[seigoRun3]近くに取得可能なターゲットはありません")
@@ -218,7 +219,7 @@ class SeigoRun3:
             except Exception as e:
                 rospy.logwarn("Except:[seigoRun3.get_nearest_unaquired_target_idx]")
                 rospy.logwarn(str(e))
-        
+        print("odomとの距離一覧",dist_between_target_list)
         nearest_target_idx = unaquired_target_idx_list[dist_between_target_list.index(min(dist_between_target_list))]
         rospy.loginfo("[seigoRun3]最も近いターゲットは target_"+str(nearest_target_idx)+" です")
 
@@ -305,7 +306,7 @@ def main():
         #some processes
         node.get_war_state()
 
-        node.process()
+        #node.process()
         node.get_nearest_unaquired_target_idx()
 
         loop_rate.sleep()
