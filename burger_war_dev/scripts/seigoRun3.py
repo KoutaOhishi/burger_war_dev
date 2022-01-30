@@ -522,6 +522,14 @@ class SeigoRun3:
     def cancel_goal(self):
         print("[seigoRun3]movebaseによる移動を停止します")
         self.move_base_client.cancel_all_goals()
+    
+    def turn_to_enemy(self, direction_diff):
+        cmd_vel = Twist()
+        if direction_diff > 60.0/180*math.pi:
+            cmd_vel.angular.z = math.copysign(1.0, direction_diff) * 2.75
+        else:
+            cmd_vel.angular.z = direction_diff*2.0
+        return cmd_vel
         
 
     def first_move(self):
@@ -622,6 +630,14 @@ class SeigoRun3:
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
                 rospy.sleep(1)
+            
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                print("[seigoRun3:leave]!!! 敵発見 !!!")
+                self.cancel_goal()
+                cmd_vel = self.turn_to_enemy(dire)
+                self.direct_twist_pub.publish(cmd_vel)
+                break
 
 
 
