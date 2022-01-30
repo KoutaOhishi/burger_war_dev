@@ -634,7 +634,7 @@ class SeigoRun3:
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
-                rospy.sleep(3)       
+                rospy.sleep(1)       
                 break
             
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
@@ -668,7 +668,7 @@ class SeigoRun3:
 
             elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に到着")
-                rospy.sleep(3)       
+                
                 
                 check_point_idx += 1
                 if check_point_idx > 7:
