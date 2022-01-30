@@ -396,7 +396,7 @@ class SeigoRun3:
         #手前の３つのフィールドターゲットを巡回する
         target_idx = foreground_target_idx_list.pop(0)
 
-        res = self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+        res = self.send_goal_pose_of_target_by_idx(target_idx)
         if res == True: 
             print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動します")
                 
@@ -413,7 +413,7 @@ class SeigoRun3:
                     break #手前３つの巡回完了
                 else:
                     target_idx = foreground_target_idx_list.pop(0)
-                    self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+                    self.send_goal_pose_of_target_by_idx(target_idx)
         
         
         print("[seigoRun3:first_move]手前3つのフィールドターゲットの巡回完了")
