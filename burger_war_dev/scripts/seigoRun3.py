@@ -553,11 +553,7 @@ class SeigoRun3:
                 break
 
             move_base_status = self.move_base_client.get_state()
-            if move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
-                rospy.sleep(1)
-            
-            elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 rospy.sleep(1)
@@ -572,6 +568,11 @@ class SeigoRun3:
                 else:
                     target_idx = foreground_target_idx_list.pop(0)
                     self.send_goal_pose_of_target_by_idx(target_idx)
+            
+            elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+            
          
         print("[seigoRun3:first_move]手前3つのフィールドターゲットの巡回完了")
         self.first_move_did = True
@@ -603,13 +604,13 @@ class SeigoRun3:
         self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
         while not rospy.is_shutdown():
             move_base_status = self.move_base_client.get_state()
-            if move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
-                rospy.sleep(1)
-
-            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に到着")
                 break
+
+            elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
+                rospy.sleep(1)
 
 
 
@@ -630,15 +631,16 @@ class SeigoRun3:
                 break
 
             move_base_status = self.move_base_client.get_state()
-            if move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
-                rospy.sleep(1)
-
-            elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
                 rospy.sleep(3)       
                 break
+            
+            elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
 
         # 画角内にマーカーがうまく入らない場合の処理
         loop_count = 0
