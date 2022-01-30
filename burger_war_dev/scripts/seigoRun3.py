@@ -486,13 +486,14 @@ class SeigoRun3:
 
         if exist == True: #敵発見
             print("[seigoRun3:strategy_decision]:敵を発見")
+            return LEAVE
 
             #敵との距離の閾値を儲けたい
             #敵との向きに応じて処理を分ける（裏を取られたら・・・）
-            if dist < 2.5:
-                return LEAVE
-            else:
-                return PATROL
+            #if dist < 2.5:
+            #    return LEAVE
+            #else:
+            #    return PATROL
             #return HIDE
 
         else: #敵はいない
@@ -523,7 +524,7 @@ class SeigoRun3:
             foreground_target_idx_list = [6,14,8]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [11,17,13]
+            foreground_target_idx_list = [13,17,11]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
@@ -580,7 +581,7 @@ class SeigoRun3:
     def leave(self):
         # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
         # 奇数番目のチェックポイントは障害物の陰になる
-        check_point_idx_list = [0,1,2,3,4,5,6,7]
+        check_point_idx_list = [0,2,4,6] #[0,1,2,3,4,5,6,7]
         dist_list = []
         for idx in range(len(check_point_idx_list)):
             target_frame_name = "check_point_"+str(idx)
