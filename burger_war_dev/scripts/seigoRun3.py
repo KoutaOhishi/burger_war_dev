@@ -130,7 +130,7 @@ class SeigoRun3:
 
         #else:
             #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
-        self.target_marker_idx = 7
+        self.target_marker_idx = 6
         move_base_status = self.move_base_client.get_state()
         #print("movebase status:"+str(move_base_status))
         if move_base_status == actionlib.GoalStatus.ACTIVE:
