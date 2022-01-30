@@ -553,8 +553,8 @@ class SeigoRun3:
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
                 rospy.sleep(1)
-
-            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            
+            elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 rospy.sleep(1)
 
@@ -635,7 +635,7 @@ class SeigoRun3:
                 print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
                 rospy.sleep(1)
 
-            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
                 rospy.sleep(3)       
                 break
