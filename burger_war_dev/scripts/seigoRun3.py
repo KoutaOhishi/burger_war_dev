@@ -502,6 +502,10 @@ class SeigoRun3:
         elif strategy == PATROL:
             self.patrol()
 
+    def cancel_goal(self):
+        print("[seigoRun3]movebaseによる移動を停止します")
+        self.move_base_client.cancel_all_goals()
+        
 
     def first_move(self):
         # ゲーム開始直後に行う動作
