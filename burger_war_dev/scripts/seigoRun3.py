@@ -597,9 +597,10 @@ class SeigoRun3:
                 dist_list.append(0.00)
         
         farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
-        print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"に移動します")
+        print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
         
         #移動開始
+        self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
         while not rospy.is_shutdown():
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
