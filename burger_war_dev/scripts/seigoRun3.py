@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from email.mime import base
 from waypoint import Waypoints
 
 from enum import Enum
@@ -67,6 +68,9 @@ from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 # strategy_dicisionの返り値
 FIRST_MOVE = 0
 PATROL     = 1
+LEAVE      = 2
+HIDE       = 3
+FACE       = 4
 # ----------------------------------------
 
 class SeigoRun3:
@@ -152,34 +156,6 @@ class SeigoRun3:
         enemy_direction_diff = angles.normalize_angle(enemy_direction-yaw)
         return True, enemy_distance, enemy_direction_diff
 
-    def process(self):
-        #self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
-        #move_base_status = self.move_base_client.get_state()
-        
-        #ゴールしたら
-        #if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-            #rospy.loginfo("[seigoRun3]Go to next waypoint")
-            #self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
-
-        #else:
-            #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
-        move_base_status = self.move_base_client.get_state()
-        #print("movebase status:"+str(move_base_status))
-        if move_base_status == actionlib.GoalStatus.ACTIVE:
-            pass
-
-        elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
-            print("ターゲット_"+str(self.target_marker_idx)+"に到着しました。")
-            self.target_marker_idx += 1
-            if(self.target_marker_idx > 17):
-                self.target_marker_idx = 6
-            
-            print("ターゲット_"+str(self.target_marker_idx)+"に向かいます。")
-            self.send_goal_pose_of_target_by_idx(self.target_marker_idx)
-
-        else:
-            print("ターゲット_"+str(self.target_marker_idx)+"に向かいます。")
-            self.send_goal_pose_of_target_by_idx(self.target_marker_idx)
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
@@ -309,7 +285,7 @@ class SeigoRun3:
         #print("未取得のターゲットは"+str(len(unaquired_target_idx_list))+"個です")
         # 未取得のターゲット（ロボットについているものは除く）が無い場合
         if len(unaquired_target_idx_list) == 0:
-            print("[seigoRun3]近くに取得可能なターゲットはありません")
+            print("[seigoRun3:get_nearest_unaquired_target_idx]取得可能なターゲットは0個です")
             return -1 
         
         dist_between_target_list = []
@@ -330,6 +306,49 @@ class SeigoRun3:
         rospy.loginfo("[seigoRun3]最も近いターゲットは target_"+str(nearest_target_idx)+" です")
 
         return nearest_target_idx
+    
+    def get_farthest_unaquired_target_idx(self, isEnemy=False):
+        #自機or敵機から一番遠い未取得のターゲットのidxを返す
+        unaquired_target_idx_list = []
+        all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
+        
+        for idx in range(6, 18): #全てのターゲットに対して、誰が取っているかを確認
+            # idx 0~5はロボットについているマーカーなので無視
+
+            if all_field_score[idx] == 0:
+                pass #自分が取得しているのでパス
+
+            else:
+                unaquired_target_idx_list.append(idx)
+
+        # 未取得のターゲット（ロボットについているものは除く）が無い場合
+        if len(unaquired_target_idx_list) == 0:
+            print("[seigoRun3:get_farthest_unaquired_target_idx]取得可能なターゲットは0個です")
+            return -1 
+        
+        dist_between_target_list = []
+        if isEnemy == False:
+            base_frame_name = "base_link"
+        
+        elif isEnemy == True:
+            base_frame_name = self.robot_namespace + "/enemy_closest"
+
+        # 未取得のターゲットから自機までの距離を計算し、リストに格納する
+        for i, target_idx in enumerate(unaquired_target_idx_list):
+            try:
+                self.tf_listener.waitForTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0), rospy.Duration(1.0))
+                (trans, hoge) = self.tf_listener.lookupTransform(base_frame_name, "target_"+str(target_idx), rospy.Time(0))
+                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+                dist_between_target_list.append(dist)
+
+            except Exception as e:
+                rospy.logwarn("Except:[seigoRun3.get_farthest_unaquired_target_idx]")
+                rospy.logwarn(str(e))
+        #print("odomとの距離一覧",dist_between_target_list)
+        farthest_target_idx = unaquired_target_idx_list[dist_between_target_list.index(max(dist_between_target_list))]
+        rospy.loginfo("[seigoRun3]最も遠いターゲットは target_"+str(farthest_target_idx)+" です")
+
+        return farthest_target_idx
 
 
     def get_war_state(self, dummy):
@@ -412,25 +431,34 @@ class SeigoRun3:
     #-------------------------------------------#
     # 現在のスコアや敵ロボットとの関係から戦略を決定する
     #
-    # ：決められたルートを巡回
-    # ：一番近くにあるマーカを取得する
-    # ：敵に正対する
-    # ：障害物の影に隠れる
+    # ：決められたルートを巡回 
+    # ：一番近くにあるマーカを取得する PATROL
+    # ：敵に正対する FACE
+    # ：敵の遠くにあるマーカーを狙う　JUMP
+    # ：障害物の影に隠れる HIDE
     #-------------------------------------------#
     def strategy_decision(self):
         # scoreや敵の位置情報をもとに動作を決定する
         if self.first_move_did == False:
             return FIRST_MOVE
+        
+        #敵の位置を確認
+        exist, dist, dire = self.detect_enemy()
 
-        else:
+        if exist == True: #敵発見
+            print("[seigoRun3:strategy_decision]:敵を発見")
+
+            #敵との距離に応じて動作を変化
+            return LEAVE
+            return HIDE
+
+        else: #敵はいない
             return PATROL
 
     def strategy_execute(self, strategy):
         if strategy == FIRST_MOVE:
             self.first_move()
 
-        #敵の位置を確認
-        
         elif strategy == PATROL:
             self.patrol()
 
@@ -535,8 +563,8 @@ def main():
     rospy.sleep(3)
 
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
         
 
         loop_rate.sleep()
