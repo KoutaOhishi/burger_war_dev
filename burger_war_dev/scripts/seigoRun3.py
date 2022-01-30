@@ -408,7 +408,8 @@ class SeigoRun3:
 
             elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
-                
+                rospy.sleep(3)
+
                 if(len(foreground_target_idx_list)==0):
                     break #手前３つの巡回完了
                 
