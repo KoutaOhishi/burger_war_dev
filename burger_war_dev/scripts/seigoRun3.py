@@ -156,10 +156,10 @@ class SeigoRun3:
                 goal_pose.position.x = trans[0]
                 goal_pose.position.y = trans[1]
                 goal_pose.position.z = trans[2]
-                goal_pose.orientation.x = 0#rot[0]
-                goal_pose.orientation.y = 0#rot[1]
-                goal_pose.orientation.z = 0#rot[2]
-                goal_pose.orientation.w = 1#rot[3]
+                goal_pose.orientation.x = rot[0]
+                goal_pose.orientation.y = rot[1]
+                goal_pose.orientation.z = rot[2]
+                goal_pose.orientation.w = rot[3]
                 
                 self.send_goal_to_move_base(goal_pose)
 
@@ -181,10 +181,10 @@ class SeigoRun3:
                 goal_pose.position.x = trans[0]
                 goal_pose.position.y = trans[1]
                 goal_pose.position.z = trans[2]
-                goal_pose.orientation.x = 0#rot[0]
-                goal_pose.orientation.y = 0#rot[1]
-                goal_pose.orientation.z = 0#rot[2]
-                goal_pose.orientation.w = 1#rot[3]
+                goal_pose.orientation.x = rot[0]
+                goal_pose.orientation.y = rot[1]
+                goal_pose.orientation.z = rot[2]
+                goal_pose.orientation.w = rot[3]
                 
                 self.send_goal_to_move_base(goal_pose)
 
@@ -380,7 +380,7 @@ def main():
         #some processes
         node.get_war_state()
 
-        node.process()
+        #node.process()
         #node.get_nearest_unaquired_target_idx()
 
         loop_rate.sleep()
