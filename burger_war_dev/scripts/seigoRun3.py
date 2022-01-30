@@ -608,7 +608,7 @@ class SeigoRun3:
                 rospy.sleep(3)       
                 
                 check_point_idx += 1
-                if check_point_idx > 8:
+                if check_point_idx > 7:
                     check_point_idx = 0
                 
                 print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に向かって移動開始")
