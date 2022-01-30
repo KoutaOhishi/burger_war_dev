@@ -125,6 +125,32 @@ class SeigoRun3:
 
     def enemy_position_callback(self, msg):
         self.enemy_position = msg
+    
+    def detect_enemy(self):
+        time_diff = rospy.Time.now().to_sec() - self.enemy_position.header.stamp.to_sec()
+        if time_diff > self.enemy_time_tolerance:   # 敵情報が古かったら無視
+            self.detect_counter = 0
+            return False, 0.0, 0.0
+        else:
+            self.detect_counter = self.detect_counter+1
+            if self.detect_counter < self.counter_th:
+                return False, 0.0, 0.0
+
+        map_topic = self.robot_namespace+"map"
+        baselink_topic = self.robot_namespace+"base_link"
+        trans, rot,  vaild = self.get_position_from_tf(
+            map_topic, baselink_topic)
+        if vaild == False:
+            return False, 0.0, 0.0
+        
+        dx = self.enemy_position.pose.pose.position.x - trans[0]
+        dy = self.enemy_position.pose.pose.position.y - trans[1]
+        enemy_distance = math.sqrt(dx*dx+dy*dy)
+
+        _, _, yaw = tf.transformations.euler_from_quaternion(rot)
+        enemy_direction = math.atan2(dy, dx)
+        enemy_direction_diff = angles.normalize_angle(enemy_direction-yaw)
+        return True, enemy_distance, enemy_direction_diff
 
     def process(self):
         #self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
@@ -402,6 +428,8 @@ class SeigoRun3:
     def strategy_execute(self, strategy):
         if strategy == FIRST_MOVE:
             self.first_move()
+
+        #敵の位置を確認
         
         elif strategy == PATROL:
             self.patrol()
@@ -447,7 +475,7 @@ class SeigoRun3:
 
             elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
-                rospy.sleep(3)
+                rospy.sleep(1)
 
                 # 画角内にマーカーがうまく入らない場合の処理
                 # ...
