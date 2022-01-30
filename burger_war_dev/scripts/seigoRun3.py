@@ -488,8 +488,8 @@ class SeigoRun3:
             print("[seigoRun3:strategy_decision]:敵を発見")
 
             #敵との距離に応じて動作を変化
-            return LEAVE
-            return HIDE
+            #return LEAVE
+            #return HIDE
 
         else: #敵はいない
             return PATROL
@@ -554,8 +554,7 @@ class SeigoRun3:
                 else:
                     target_idx = foreground_target_idx_list.pop(0)
                     self.send_goal_pose_of_target_by_idx(target_idx)
-        
-        
+         
         print("[seigoRun3:first_move]手前3つのフィールドターゲットの巡回完了")
         self.first_move_did = True
 
@@ -613,6 +612,11 @@ class SeigoRun3:
                 
                 print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に向かって移動開始")
                 self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
+
+            #敵の位置を確認
+            exist, dist, dire = self.detect_enemy()
+            if exist == True: #敵発見
+                print("[!!!! 敵発見 !!!!]距離："+str(dist))
 
 
 def main():
