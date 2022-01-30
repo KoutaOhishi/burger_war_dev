@@ -207,6 +207,45 @@ class SeigoRun3:
                     break
             
             return res
+    
+    def send_goal_pose_of_checkPoint_by_idx(self, idx):
+        #チェックポイントのインデックスを引数として渡すとそこまでのGoalPoseをmovebase serverに送ります
+        loop_count = 0
+        
+        if idx < 0 or 8 < idx:
+            print("[seigoRun3]0~8以外のインデックスは受け付けない")
+            return False
+
+        else:
+            check_point_link = "check_point_"+str(idx)
+            base_link = self.robot_namespace+"map"
+            res = False
+            
+            while not rospy.is_shutdown():
+                trans, rot, res = self.get_position_from_tf(check_point_link, base_link)
+                if res == False:
+                    print("check_point_"+str(idx)+"の座標変換に失敗しました")
+                    loop_count += 1
+                    rospy.sleep(1)
+
+                elif loop_count >= 10:
+                    print("[seigoRun3:send_goal_pose_of_check...]10秒経っても座標変換できないので移動できません")
+                    break
+
+                else:
+                    goal_pose = Pose()
+                    goal_pose.position.x = trans[0]
+                    goal_pose.position.y = trans[1]
+                    goal_pose.position.z = trans[2]
+                    goal_pose.orientation.x = rot[0]
+                    goal_pose.orientation.y = rot[1]
+                    goal_pose.orientation.z = rot[2]
+                    goal_pose.orientation.w = rot[3]
+                    #print("goal_pose "+str(goal_pose))
+                    self.send_goal_to_move_base(goal_pose)
+                    break
+            
+            return res
 
     def send_goal_to_move_base(self, arg):
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
@@ -553,6 +592,27 @@ class SeigoRun3:
                 self.tweak_position("linear", -0.1, 0.1) #0.1秒 -0.1下がる
                 rospy.sleep(1)
                 loop_count += 1
+    
+    def check_point_run(self):
+        check_point_idx = 0
+        self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
+
+        while not rospy.is_shutdown():
+            move_base_status = self.move_base_client.get_state()
+            if move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
+            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に到着")
+                rospy.sleep(3)       
+                
+                check_point_idx += 1
+                if check_point_idx > 8:
+                    check_point_idx = 0
+                
+                print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に向かって移動開始")
+                self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
 
 
 def main():
