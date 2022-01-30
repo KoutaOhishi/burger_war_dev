@@ -558,7 +558,8 @@ class SeigoRun3:
                 rospy.sleep(1)
             
             elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
+                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 rospy.sleep(1)
 
                 # 画角内にマーカーがうまく入らない場合の処理
@@ -633,7 +634,8 @@ class SeigoRun3:
                 rospy.sleep(1)
 
             elif self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
+                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
                 rospy.sleep(3)       
                 break
 
