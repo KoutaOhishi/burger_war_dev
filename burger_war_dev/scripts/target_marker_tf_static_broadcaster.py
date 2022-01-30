@@ -7,6 +7,33 @@ import rospy
 import tf, tf2_ros
 from geometry_msgs.msg import Pose, Point, Quaternion, TransformStamped
 
+# --- target definition (r), refer http://localhost:5000/warstate ---
+# the number means index of warstate json file.
+# the target state is stored in all_field_score param (0:no one,1:mybot,2:enemy)
+#
+#      6                   8
+#   [BLOCK]     14      [BLOCK]
+#      7                   9
+#          16 [BLOCK] 15
+#      10                  12
+#   [BLOCK]     17      [BLOCK]
+#      11                  13
+#
+#  coordinate systemn
+#            ^ X  blue bot
+#            |
+#            |
+#     Y <----|-----
+#            |
+#            |
+#            |    red bot
+#
+# ----------------------------------------
+#        Back 0                  Back 3
+#   R 2[enemy_bot(b)]L 1   R 5[my_bot(r)]L 4
+#        Front                   Front
+# ----------------------------------------
+
 # marker_idx, [x,y]
 target_markers = [
     [ 0.00,  0.00], # 0 blue_bot Back
