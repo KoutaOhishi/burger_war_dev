@@ -83,13 +83,12 @@ def tf_static_broadcaster():
 
             transform_stamped.transform.translation.x = float(target_markers[i][0])
             transform_stamped.transform.translation.y = float(target_markers[i][1])
-            transform_stamped.transform.translation.z = 0.00
+            transform_stamped.transform.translation.z = float(target_markers[i][2])
 
-            euler = tf.transformations.quaternion_from_euler(0.00, 0.00, 0.00)
-            transform_stamped.transform.rotation.x = euler[0] #x
-            transform_stamped.transform.rotation.y = euler[1] #y
-            transform_stamped.transform.rotation.z = euler[2] #z
-            transform_stamped.transform.rotation.w = euler[3] #w
+            transform_stamped.transform.rotation.x = float(target_markers[i][3])
+            transform_stamped.transform.rotation.y = float(target_markers[i][4])
+            transform_stamped.transform.rotation.z = float(target_markers[i][5])
+            transform_stamped.transform.rotation.w = float(target_markers[i][6])
 
             transform_stamped_list.append(transform_stamped)
             #print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
