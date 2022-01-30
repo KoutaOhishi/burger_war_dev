@@ -487,7 +487,8 @@ class SeigoRun3:
         if exist == True: #敵発見
             print("[seigoRun3:strategy_decision]:敵を発見")
 
-            #敵との距離に応じて動作を変化
+            #敵との距離の閾値を儲けたい
+            #敵との向きに応じて処理を分ける（裏を取られたら・・・）
             #return LEAVE
             #return HIDE
 
@@ -629,7 +630,9 @@ def main():
     while not rospy.is_shutdown():
         #strategy = node.strategy_decision()
         #node.strategy_execute(strategy)
-        node.check_point_run()
+        #node.check_point_run()
+
+        print(node.detect_enemy())
 
         loop_rate.sleep()
 
