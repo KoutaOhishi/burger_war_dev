@@ -633,7 +633,7 @@ class SeigoRun3:
             
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
-                print("[seigoRun3:leave]!!! 敵発見 !!!")
+                print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
                 self.cancel_goal()
                 cmd_vel = self.turn_to_enemy(dire)
                 self.direct_twist_pub.publish(cmd_vel)
