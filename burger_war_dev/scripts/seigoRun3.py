@@ -400,7 +400,7 @@ class SeigoRun3:
         if res == True: 
             print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動します")
                 
-        while len(foreground_target_idx_list) != 0:
+        while not rospy.is_shutdown():
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
@@ -411,6 +411,7 @@ class SeigoRun3:
                 
                 if(len(foreground_target_idx_list)==0):
                     break #手前３つの巡回完了
+                
                 else:
                     target_idx = foreground_target_idx_list.pop(0)
                     self.send_goal_pose_of_target_by_idx(target_idx)
