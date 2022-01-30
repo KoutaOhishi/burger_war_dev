@@ -204,7 +204,7 @@ class SeigoRun3:
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = "base_link" #self.robot_namespace+"map"
+        goal.target_pose.header.frame_id = self.robot_namespace+"map"
         goal.target_pose.header.stamp = rospy.Time.now()
 
         if type(arg) == Pose:
