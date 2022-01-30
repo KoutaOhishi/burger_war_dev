@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ast import Pass
+from asyncore import loop
 from waypoint import Waypoints
 
 from enum import Enum
@@ -162,28 +163,42 @@ class SeigoRun3:
 
     def send_goal_pose_of_target_by_idx(self, target_idx):
         #ターゲットのインデックスを引数として渡すとそこまでのGoalPoseをmovebase serverに送ります
+        loop_count = 0
+        
         if target_idx < 6:
             print("[seigoRun3]0~5のインデックスは受け付けない")
+            return False
 
         else:
             target_link = "target_"+str(target_idx)
             base_link = self.robot_namespace+"map"
-            trans, rot, res = self.get_position_from_tf(target_link, base_link)
-            if res == False:
-                print("ターゲット_"+str(target_idx)+"の座標変換に失敗しました")
+            res = False
             
-            else:
-                goal_pose = Pose()
-                goal_pose.position.x = trans[0]
-                goal_pose.position.y = trans[1]
-                goal_pose.position.z = trans[2]
-                goal_pose.orientation.x = rot[0]
-                goal_pose.orientation.y = rot[1]
-                goal_pose.orientation.z = rot[2]
-                goal_pose.orientation.w = rot[3]
-                print("goal_pose "+str(goal_pose))
-                
-                self.send_goal_to_move_base(goal_pose)
+            while not rospy.is_shutdown():
+                trans, rot, res = self.get_position_from_tf(target_link, base_link)
+                if res == False:
+                    print("ターゲット_"+str(target_idx)+"の座標変換に失敗しました")
+                    loop_count += 1
+                    rospy.sleep(1)
+
+                elif loop_count >= 10:
+                    print("[seigoRun3:send_goal_pose_of_tar...]10秒経っても座標変換できないので移動できません")
+                    break
+
+                else:
+                    goal_pose = Pose()
+                    goal_pose.position.x = trans[0]
+                    goal_pose.position.y = trans[1]
+                    goal_pose.position.z = trans[2]
+                    goal_pose.orientation.x = rot[0]
+                    goal_pose.orientation.y = rot[1]
+                    goal_pose.orientation.z = rot[2]
+                    goal_pose.orientation.w = rot[3]
+                    #print("goal_pose "+str(goal_pose))
+                    self.send_goal_to_move_base(goal_pose)
+                    break
+            
+            return res
 
     def send_goal_to_move_base(self, arg):
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
@@ -366,7 +381,7 @@ class SeigoRun3:
             foreground_target_idx_list = [11,13,17]
 
         start_time = rospy.get_time()
-        while rospy.is_shutdown():
+        while not rospy.is_shutdown():
             #target_17(一番最後)の座標登録が可能かどうかチェック
             trans, rot, res = self.get_position_from_tf(self, "target_17", self.robot_namespace+"map")
 
@@ -385,7 +400,19 @@ class SeigoRun3:
 
         #手前の３つのフィールドターゲットを巡回する
         target_idx = foreground_target_idx_list.pop(0)
-        self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+        loop_count = 0:
+        while not rospy.is_shutdown():
+            res = self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+            
+            if res == True:
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動します")
+                break
+            
+            else:
+                loop_count += 1
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"に移動できない")
+                rospy.sleep(1)
+        
         while len(foreground_target_idx_list) != 0:
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
