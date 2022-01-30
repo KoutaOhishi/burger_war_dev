@@ -137,7 +137,7 @@ class SeigoRun3:
         else:
             nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
             target_link = "target_"+str(nearest_target_idx)
-            base_link = self.robot_namespace+"/map"
+            base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
             goal_pose = Pose()
             goal_pose.position.x = trans[0]
@@ -165,7 +165,7 @@ class SeigoRun3:
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = self.robot_namespace+"/map"
+        goal.target_pose.header.frame_id = self.robot_namespace+"map"
         goal.target_pose.header.stamp = rospy.Time.now()
 
         if type(arg) == Pose:
