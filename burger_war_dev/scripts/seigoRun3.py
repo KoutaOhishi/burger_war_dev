@@ -65,6 +65,12 @@ from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 #  uint8 LOST            = 9
 # ----------------------------------------
 
+# ----------------------------------------
+# strategy_dicisionの返り値
+FISRT_MOVE = 0
+PATROL     = 1
+# ----------------------------------------
+
 class SeigoRun3:
 
     def __init__(self):
@@ -113,7 +119,7 @@ class SeigoRun3:
         self.tf_listener = tf.TransformListener()
         self.tf_broadcaster = tf.TransformBroadcaster()
 
-        #直接車輪に制御命令を送るpublisherの制限
+        #直接車輪に制御命令を送るpublisherの生成
         self.direct_twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
 
@@ -368,6 +374,17 @@ class SeigoRun3:
     # ：敵に正対する
     # ：障害物の影に隠れる
     #-------------------------------------------#
+    def strategy_decision(self):
+        # scoreや敵の位置情報をもとに動作を決定する
+        if self.first_move_did != False:
+            return FISRT_MOVE
+
+        else:
+            return PATROL
+
+    def strategy_execute(self, strategy):
+
+
     def first_move(self):
         # ゲーム開始直後に行う動作
         # 手前のフィールドターゲットを３つを取る
@@ -422,11 +439,8 @@ class SeigoRun3:
         self.first_move_did = True
 
     def patrol(self):
-        pass
+        
 
-
-    def patrol(self):
-        pass
 
     
 
@@ -442,7 +456,8 @@ def main():
 
         #node.process()
         #node.get_nearest_unaquired_target_idx()
-        node.first_move()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
 
         loop_rate.sleep()
 
