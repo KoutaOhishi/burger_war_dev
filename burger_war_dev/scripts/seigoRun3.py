@@ -130,7 +130,7 @@ class SeigoRun3:
 
         #else:
             #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
-        
+        self.target_marker_idx = 7
         move_base_status = self.move_base_client.get_state()
         #print("movebase status:"+str(move_base_status))
         if move_base_status == actionlib.GoalStatus.ACTIVE:
@@ -138,35 +138,11 @@ class SeigoRun3:
 
         elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
             print("ターゲット_"+str(self.target_marker_idx)+"に到着しました。")
-            self.target_marker_idx += 1
-            if(self.target_marker_idx > 17):
-                self.target_marker_idx = 6
-            print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
-            target_link = "target_"+str(self.target_marker_idx)
-            base_link = self.robot_namespace+"map"
-            trans, rot, res = self.get_position_from_tf(target_link, base_link)
-            if res == False:
-                print("ターゲット_"+str(self.target_marker_idx)+"の座標変換に失敗しました")
-                self.target_marker_idx += 1
-                if(self.target_marker_idx > 17):
-                    self.target_marker_idx = 6
-            
-            else:
-                goal_pose = Pose()
-                goal_pose.position.x = trans[0]
-                goal_pose.position.y = trans[1]
-                goal_pose.position.z = trans[2]
-                goal_pose.orientation.x = rot[0]
-                goal_pose.orientation.y = rot[1]
-                goal_pose.orientation.z = rot[2]
-                goal_pose.orientation.w = rot[3]
-                
-                self.send_goal_to_move_base(goal_pose)
 
         else:
             #nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
             #target_link = "target_"+str(nearest_target_idx)
-            print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
+            print("ターゲット_"+str(self.target_marker_idx)+"に向かいます。")
             target_link = "target_"+str(self.target_marker_idx)
             base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
@@ -185,6 +161,7 @@ class SeigoRun3:
                 goal_pose.orientation.y = rot[1]
                 goal_pose.orientation.z = rot[2]
                 goal_pose.orientation.w = rot[3]
+                print("goal_pose "+str(goal_pose))
                 
                 self.send_goal_to_move_base(goal_pose)
 
