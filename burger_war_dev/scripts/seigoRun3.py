@@ -473,7 +473,7 @@ class SeigoRun3:
     # ：決められたルートを巡回 
     # ：一番近くにあるマーカを取得する PATROL
     # ：敵に正対する FACE
-    # ：敵の遠くにあるマーカーを狙う　JUMP
+    # ：敵の遠くにあるマーカーを狙う　LEAVE
     # ：障害物の影に隠れる HIDE
     #-------------------------------------------#
     def strategy_decision(self):
@@ -489,7 +489,7 @@ class SeigoRun3:
 
             #敵との距離の閾値を儲けたい
             #敵との向きに応じて処理を分ける（裏を取られたら・・・）
-            #return LEAVE
+            return LEAVE
             #return HIDE
 
         else: #敵はいない
@@ -501,6 +501,9 @@ class SeigoRun3:
 
         elif strategy == PATROL:
             self.patrol()
+        
+        elif strategy == LEAVE:
+            self.leave()
 
     def cancel_goal(self):
         print("[seigoRun3]movebaseによる移動を停止します")
@@ -540,6 +543,12 @@ class SeigoRun3:
             print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動します")
                 
         while not rospy.is_shutdown():
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                print("[seigoRun3:first_move]!!! 敵発見 !!!")
+                self.cancel_goal()
+                break
+
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
@@ -563,6 +572,48 @@ class SeigoRun3:
         print("[seigoRun3:first_move]手前3つのフィールドターゲットの巡回完了")
         self.first_move_did = True
 
+    def leave(self):
+        # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
+        # 奇数番目のチェックポイントは障害物の陰になる
+        dist_list = []
+        for idx in range(8):
+            #if idx%2 == 0:
+            target_frame_name = "check_point_"+str(idx)
+            source_frame_name = self.robot_namespace + "/enemy_closest"
+            
+            try:
+                self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
+                (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
+                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+                dist_list.append(dist)
+
+            except Exception as e:
+                rospy.logwarn("Except:[seigoRun3:leave]")
+                rospy.logwarn(str(e))
+                dist_list.append(0.00)
+        
+        farthest_check_point_idx = dist_list[dist_list.index(max(dist_list))]
+        print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"に移動します")
+        
+        #移動開始
+        while not rospy.is_shutdown():
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                print("[seigoRun3:leave]!!! 敵発見 !!!")
+                self.cancel_goal()
+                break
+
+            move_base_status = self.move_base_client.get_state()
+            if move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
+            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に到着")
+                break
+
+
+
     def patrol(self):
         #一番近くにある未取得のフィールドターゲットを探索する
         print("[seigoRun3:patrol]一番近くにある未取得のフィールドターゲットを狙います")
@@ -573,6 +624,12 @@ class SeigoRun3:
             print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動します")
 
         while not rospy.is_shutdown():
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                print("[seigoRun3:patrol]!!! 敵発見 !!!")
+                self.cancel_goal()
+                break
+
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
@@ -636,7 +693,7 @@ def main():
         #node.strategy_execute(strategy)
         #node.check_point_run()
 
-        print(node.detect_enemy())
+        #print(node.detect_enemy())
 
         loop_rate.sleep()
 
