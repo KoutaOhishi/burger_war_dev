@@ -37,6 +37,10 @@ from geometry_msgs.msg import Pose, Point, Quaternion, TransformStamped
 #  ↓ qx:0.00, qy:0.00, qz:1.00, qw:0.00
 #  → qx:0.00, qy:0.00, qz:-0.707, qw:0.707
 #  ← qx:0.00, qy:0.00, qz:0.707, qw:0.707
+#  ↗︎ qx:0.00, qy:0.00, qz:-0.38, qw:0.92
+#  ↘️ qx:0.00, qy:0.00, qz:0.92, qw:-0.38
+#  ↙️ qx:0.00, qy:0.00, qz:0.92, qw:0.38
+#  ↖️ qx:0.00, qy:0.00, qz:0.38, qw:0.92
 # ----------------------------------------
 
 # marker_idx, [x,y,z, qx, qy, qz, qw]
@@ -59,6 +63,17 @@ target_markers = [
     [ 0.00, -0.40, 0.00, 0.00, 0.00, 0.707, 0.707], # 15
     [ 0.00,  0.40, 0.00, 0.00, 0.00,-0.707, 0.707], # 16
     [-0.40,  0.00, 0.00, 0.00, 0.00,  0.00,  1.00]  # 17
+]
+
+check_point_markers = [
+    [ 1.30,  0.00, 0.00, 0.00, 0.00,  1.00,  0.00],
+    [ 0.70, -0.70, 0.00, 0.00, 0.00,  0.92, -0.38],
+    [ 0.00, -1.30, 0.00, 0.00, 0.00,  0.70,  0.70],
+    [-0.70, -0.70, 0.00, 0.00, 0.00,  0.92,  0.38],
+    [-1.30,  0.00, 0.00, 0.00, 0.00,  0.00,  1.00],
+    [-0.70,  0.70, 0.00, 0.00, 0.00,  0.38,  0.92],
+    [ 0.00,  1.30, 0.00, 0.00, 0.00, -0.70,  0.70],
+    [ 0.70,  0.70, 0.00, 0.00, 0.00, -0.38,  0.92]
 ]
 
 broadcaster = tf2_ros.StaticTransformBroadcaster()
@@ -91,8 +106,26 @@ def tf_static_broadcaster():
             transform_stamped.transform.rotation.w = float(target_markers[i][6])
 
             transform_stamped_list.append(transform_stamped)
-            print("idx:"+str(i)+"  "+str(target_markers[i]))
-            #print("[tf_static_broadcaster]target_"+str(i)+" frame is broadcasted.")
+            #print("idx:"+str(i)+"  "+str(target_markers[i]))
+            
+    for i in range(len(check_point_markers)):
+        transform_stamped = TransformStamped()
+
+        transform_stamped.header.stamp = rospy.Time.now()
+        transform_stamped.header.frame_id = "map"
+        transform_stamped.child_frame_id = "check_point_"+str(i)
+
+        transform_stamped.transform.translation.x = float(check_point_markers[i][0])
+        transform_stamped.transform.translation.y = float(check_point_markers[i][1])
+        transform_stamped.transform.translation.z = float(check_point_markers[i][2])
+
+        transform_stamped.transform.rotation.x = float(check_point_markers[i][3])
+        transform_stamped.transform.rotation.y = float(check_point_markers[i][4])
+        transform_stamped.transform.rotation.z = float(check_point_markers[i][5])
+        transform_stamped.transform.rotation.w = float(check_point_markers[i][6])
+
+        transform_stamped_list.append(transform_stamped)
+        #print("idx:"+str(i)+"  "+str(target_markers[i]))
 
     broadcaster.sendTransform(transform_stamped_list)
     rospy.spin()
