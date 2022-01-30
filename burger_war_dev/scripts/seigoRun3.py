@@ -575,9 +575,9 @@ class SeigoRun3:
     def leave(self):
         # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
         # 奇数番目のチェックポイントは障害物の陰になる
+        check_point_idx_list = [0,1,2,3,4,5,6,7]
         dist_list = []
-        for idx in range(8):
-            #if idx%2 == 0:
+        for idx in range(len(check_point_idx_list)):
             target_frame_name = "check_point_"+str(idx)
             source_frame_name = self.robot_namespace + "/enemy_closest"
             
@@ -592,7 +592,7 @@ class SeigoRun3:
                 rospy.logwarn(str(e))
                 dist_list.append(0.00)
         
-        farthest_check_point_idx = dist_list[dist_list.index(max(dist_list))]
+        farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
         print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"に移動します")
         
         #移動開始
