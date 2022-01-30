@@ -306,7 +306,7 @@ class SeigoRun3:
         return nearest_target_idx
 
 
-    def get_war_state(self):
+    def get_war_state(self, dummy):
         #rospy.loginfo("[seigoRun3]Get war_state")
         req = requests.get(self.judge_server_url+"/warState")
         dic = req.json()
