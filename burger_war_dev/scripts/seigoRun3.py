@@ -242,7 +242,7 @@ class SeigoRun3:
             return -1 
         
         dist_between_target_list = []
-        base_frame_name = "odom"
+        base_frame_name = "base_link"
         # 未取得のターゲットから自機までの距離を計算し、リストに格納する
         for i, target_idx in enumerate(unaquired_target_idx_list):
             try:
