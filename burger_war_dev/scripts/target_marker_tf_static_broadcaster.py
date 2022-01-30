@@ -68,11 +68,11 @@ target_markers = [
 check_point_markers = [
     [ 1.30,  0.00, 0.00, 0.00, 0.00,  1.00,  0.00],
     [ 0.70, -0.70, 0.00, 0.00, 0.00,  0.92, -0.38],
-    [ 0.00, -1.30, 0.00, 0.00, 0.00,  0.70,  0.70],
+    [ 0.00, -1.30, 0.00, 0.00, 0.00, 0.707,  0.707],
     [-0.70, -0.70, 0.00, 0.00, 0.00,  0.92,  0.38],
     [-1.30,  0.00, 0.00, 0.00, 0.00,  0.00,  1.00],
     [-0.70,  0.70, 0.00, 0.00, 0.00,  0.38,  0.92],
-    [ 0.00,  1.30, 0.00, 0.00, 0.00, -0.70,  0.70],
+    [ 0.00,  1.30, 0.00, 0.00, 0.00,-0.707,  0.707],
     [ 0.70,  0.70, 0.00, 0.00, 0.00, -0.38,  0.92]
 ]
 
@@ -125,7 +125,7 @@ def tf_static_broadcaster():
         transform_stamped.transform.rotation.w = float(check_point_markers[i][6])
 
         transform_stamped_list.append(transform_stamped)
-        #print("idx:"+str(i)+"  "+str(target_markers[i]))
+        print("idx:"+str(i)+"  "+str(target_markers[i]))
 
     broadcaster.sendTransform(transform_stamped_list)
     rospy.spin()
