@@ -357,7 +357,7 @@ def main():
         #some processes
         node.get_war_state()
 
-        #node.process()
+        node.process()
         #node.get_nearest_unaquired_target_idx()
 
         loop_rate.sleep()
