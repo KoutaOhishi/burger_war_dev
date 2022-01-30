@@ -373,17 +373,20 @@ class SeigoRun3:
             if res == True:
                 break
 
-            if rospy.get_time() - start_time > 5:
-                #座標変換開始から5秒経過している場合
-                print("[seigoRun3:first_move]ターゲット_17の座標変換に失敗していますが、first_moveを実行します")
-                break
+            else:
+                print("[seigoRun3:first_move]ターゲット_17の座標変換に失敗")
+
+            #if rospy.get_time() - start_time > 5:
+            #    #座標変換開始から5秒経過している場合
+            #    print("[seigoRun3:first_move]ターゲット_17の座標変換に失敗していますが、first_moveを実行します")
+            #    break
             
             rospy.sleep(1)
 
         #手前の３つのフィールドターゲットを巡回する
         target_idx = foreground_target_idx_list.pop(0)
         self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
-        while len(foreground_target_idx_list) == 0:
+        while len(foreground_target_idx_list) != 0:
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
