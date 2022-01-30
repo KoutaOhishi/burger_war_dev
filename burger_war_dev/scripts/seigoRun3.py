@@ -3,6 +3,7 @@
 
 from ast import Pass
 from asyncore import loop
+from tkinter import FIRST
 from waypoint import Waypoints
 
 from enum import Enum
@@ -67,7 +68,7 @@ from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
 # ----------------------------------------
 # strategy_dicisionの返り値
-FISRT_MOVE = 0
+FIRST_MOVE = 0
 PATROL     = 1
 # ----------------------------------------
 
@@ -122,6 +123,8 @@ class SeigoRun3:
         #直接車輪に制御命令を送るpublisherの生成
         self.direct_twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
+        # war_stateの定期更新する
+        rospy.Timer(rospy.Duration(1), self.get_war_state)
 
     def enemy_position_callback(self, msg):
         self.enemy_position = msg
@@ -377,12 +380,17 @@ class SeigoRun3:
     def strategy_decision(self):
         # scoreや敵の位置情報をもとに動作を決定する
         if self.first_move_did != False:
-            return FISRT_MOVE
+            return FIRST_MOVE
 
         else:
             return PATROL
 
     def strategy_execute(self, strategy):
+        if strategy == FIRST_MOVE:
+            self.first_move()
+        
+        elif strategy == PATROL:
+            self.patrol()
 
 
     def first_move(self):
@@ -427,6 +435,10 @@ class SeigoRun3:
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 rospy.sleep(3)
 
+                # 画角内にマーカーがうまく入らない場合の処理
+                # ...
+
+
                 if(len(foreground_target_idx_list)==0):
                     break #手前３つの巡回完了
                 
@@ -439,10 +451,29 @@ class SeigoRun3:
         self.first_move_did = True
 
     def patrol(self):
+        #一番近くにある未取得のフィールドターゲットを探索する
+        print("[seigoRun3:patrol]一番近くにある未取得のフィールドターゲットを狙います")
+        target_idx = self.get_nearest_unaquired_target_idx()
+
+        res = self.send_goal_pose_of_target_by_idx(target_idx)
+        if res == True: 
+            print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動します")
+
+        while not rospy.is_shutdown():
+            move_base_status = self.move_base_client.get_state()
+            if move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
+            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
+                rospy.sleep(3)       
+                break
+
+        # 画角内にマーカーがうまく入らない場合の処理
+        # ...
         
 
-
-    
 
 def main():
     rospy.init_node("seigo_run3")
@@ -450,10 +481,8 @@ def main():
     node = SeigoRun3()
     loop_rate = rospy.Rate(30) #30Hz
     rospy.sleep(3)
-    while not rospy.is_shutdown():
-        #some processes
-        node.get_war_state()
 
+    while not rospy.is_shutdown():
         #node.process()
         #node.get_nearest_unaquired_target_idx()
         strategy = node.strategy_decision()
