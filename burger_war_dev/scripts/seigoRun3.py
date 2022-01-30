@@ -50,7 +50,19 @@ from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 #   R 2[enemy_bot(b)]L 1   R 5[my_bot(r)]L 4
 #        Front                   Front
 
-
+# ----------------------------------------
+# actionlib.GoalStatus
+#  uint8 PENDING         = 0  
+#  uint8 ACTIVE          = 1 
+#  uint8 PREEMPTED       = 2
+#  uint8 SUCCEEDED       = 3
+#  uint8 ABORTED         = 4
+#  uint8 REJECTED        = 5
+#  uint8 PREEMPTING      = 6
+#  uint8 RECALLING       = 7
+#  uint8 RECALLED        = 8
+#  uint8 LOST            = 9
+# ----------------------------------------
 
 class SeigoRun3:
 
@@ -118,14 +130,24 @@ class SeigoRun3:
         #else:
             #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
         
-        nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
-        target_link = "target_"+str(nearest_target_idx)
-        base_link = self.robot_namespace+"/map"
-        trans, rot, res = self.get_position_from_tf(target_link, base_link)
-        print("##########")
-        print(trans)
-        print(rot)
-        print("##########")
+        move_base_status = self.move_base_client.get_state()
+        if move_base_status == actionlib.GoalStatus.ACTIVE:
+            pass
+        
+        else:
+            nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
+            target_link = "target_"+str(nearest_target_idx)
+            base_link = self.robot_namespace+"/map"
+            trans, rot, res = self.get_position_from_tf(target_link, base_link)
+            goal_pose = Pose()
+            goal_pose.position.x = trans[0]
+            goal_pose.position.y = trans[1]
+            goal_pose.position.z = trans[2]
+            goal_pose.orientation.x = rot[0]
+            goal_pose.orientation.y = rot[1]
+            goal_pose.orientation.z = rot[2]
+            goal_pose.orientation.w = rot[3]
+            self.send_goal_to_move_base(goal_pose)
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
