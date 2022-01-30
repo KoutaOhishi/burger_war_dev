@@ -416,6 +416,7 @@ def main():
     rospy.loginfo("[seigoRun3]seigoRun3 is running")
     node = SeigoRun3()
     loop_rate = rospy.Rate(30) #30Hz
+    rospy.sleep(3)
     while not rospy.is_shutdown():
         #some processes
         node.get_war_state()
