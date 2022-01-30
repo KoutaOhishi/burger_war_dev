@@ -107,17 +107,25 @@ class SeigoRun3:
         
 
     def process(self):
-        self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
-        move_base_status = self.move_base_client.get_state()
+        #self.send_goal_to_move_base(self.waypoint.get_current_waypoint())
+        #move_base_status = self.move_base_client.get_state()
         
         #ゴールしたら
-        if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+        #if move_base_status == actionlib.GoalStatus.SUCCEEDED:
             #rospy.loginfo("[seigoRun3]Go to next waypoint")
-            self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
+            #self.send_goal_to_move_base(self.waypoint.get_next_waypoint())
 
         #else:
             #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
-
+        
+        nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
+        target_link = "target_"+str(nearest_target_idx)
+        base_link = self.robot_namespace+"/map"
+        trans, rot, res = self.get_position_from_tf(target_link, base_link)
+        print("##########")
+        print(trans)
+        print(rot)
+        print("##########")
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
@@ -131,21 +139,26 @@ class SeigoRun3:
             rospy.logwarn('tf error')
             return trans, rot, False
 
-    def send_goal_to_move_base(self, waypoint):
+    def send_goal_to_move_base(self, arg):
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
-
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = self.robot_namespace+"map"
-        goal.target_pose.pose.position.x = waypoint[0]
-        goal.target_pose.pose.position.y = waypoint[1]
-
-        q = tf.transformations.quaternion_from_euler(0, 0, waypoint[2])
-        goal.target_pose.pose.orientation.x = q[0]
-        goal.target_pose.pose.orientation.y = q[1]
-        goal.target_pose.pose.orientation.z = q[2]
-        goal.target_pose.pose.orientation.w = q[3]
+        goal.target_pose.header.frame_id = self.robot_namespace+"/map"
         goal.target_pose.header.stamp = rospy.Time.now()
+
+        if type(arg) == Pose:
+            goal.target_pose.pose = arg
+
+        else: #引数の型はwaypoint
+            goal.target_pose.pose.position.x = arg[0]
+            goal.target_pose.pose.position.y = arg[1]
+
+            q = tf.transformations.quaternion_from_euler(0, 0, arg[2])
+            goal.target_pose.pose.orientation.x = q[0]
+            goal.target_pose.pose.orientation.y = q[1]
+            goal.target_pose.pose.orientation.z = q[2]
+            goal.target_pose.pose.orientation.w = q[3]
+        
         
         self.move_base_client.send_goal(goal)
         #rospy.loginfo("[seigoRun3]move_baseサーバにwaypointを送信しました")
