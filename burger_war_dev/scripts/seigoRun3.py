@@ -366,6 +366,14 @@ class SeigoRun3:
         #    print(str(i), str(self.all_field_score[i])    
         #print("----------")
 
+    def tweak_position(self):
+        # マーカがうまく画角に入らない等の時に実行する関数
+        twist = Twist()
+        twist.linear.x = -0.1
+        self.direct_twist_pub.publish(twist)
+        rospy.sleep(1)
+
+
     #-------------------------------------------#
     # 現在のスコアや敵ロボットとの関係から戦略を決定する
     #
@@ -480,10 +488,9 @@ def main():
     rospy.sleep(3)
 
     while not rospy.is_shutdown():
-        #node.process()
-        #node.get_nearest_unaquired_target_idx()
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
+        node.tweak_position()
 
         loop_rate.sleep()
 
