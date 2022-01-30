@@ -132,7 +132,7 @@ class SeigoRun3:
             #rospy.loginfo("[seigRun3]move_base_status:"+str(move_base_status))
         
         move_base_status = self.move_base_client.get_state()
-        print("movebase status:"+str(move_base_status))
+        #print("movebase status:"+str(move_base_status))
         if move_base_status == actionlib.GoalStatus.ACTIVE:
             pass
 
@@ -142,7 +142,8 @@ class SeigoRun3:
             if(self.target_marker_idx > 17):
                 self.target_marker_idx = 6
             print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
-       
+
+        else:
             #nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
             #target_link = "target_"+str(nearest_target_idx)
             target_link = "target_"+str(self.target_marker_idx)
