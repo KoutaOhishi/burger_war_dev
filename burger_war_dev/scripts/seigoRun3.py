@@ -489,7 +489,10 @@ class SeigoRun3:
 
             #敵との距離の閾値を儲けたい
             #敵との向きに応じて処理を分ける（裏を取られたら・・・）
-            return LEAVE
+            if dist < 2.5:
+                return LEAVE
+            else:
+                return PATROL
             #return HIDE
 
         else: #敵はいない
@@ -597,12 +600,6 @@ class SeigoRun3:
         
         #移動開始
         while not rospy.is_shutdown():
-            exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            if exist == True: #敵発見
-                print("[seigoRun3:leave]!!! 敵発見 !!!")
-                self.cancel_goal()
-                break
-
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
