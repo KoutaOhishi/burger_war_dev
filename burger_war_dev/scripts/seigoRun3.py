@@ -376,7 +376,7 @@ class SeigoRun3:
     #-------------------------------------------#
     def strategy_decision(self):
         # scoreや敵の位置情報をもとに動作を決定する
-        if self.first_move_did != False:
+        if self.first_move_did == False:
             return FIRST_MOVE
 
         else:
