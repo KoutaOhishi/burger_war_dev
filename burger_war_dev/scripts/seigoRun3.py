@@ -104,6 +104,8 @@ class SeigoRun3:
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
         self.enemy_position = Odometry()
+        self.enemy_info = [0.0, 0.0]
+        self.detect_counter = 0
 
         #move_baseの準備
         self.move_base_client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
