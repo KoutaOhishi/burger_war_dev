@@ -141,24 +141,32 @@ class SeigoRun3:
             self.target_marker_idx += 1
             if(self.target_marker_idx > 17):
                 self.target_marker_idx = 6
-            print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
+            
 
         else:
             #nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
             #target_link = "target_"+str(nearest_target_idx)
+            print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
             target_link = "target_"+str(self.target_marker_idx)
             base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
-            goal_pose = Pose()
-            goal_pose.position.x = trans[0]
-            goal_pose.position.y = trans[1]
-            goal_pose.position.z = trans[2]
-            goal_pose.orientation.x = rot[0]
-            goal_pose.orientation.y = rot[1]
-            goal_pose.orientation.z = rot[2]
-            goal_pose.orientation.w = rot[3]
+            if res == False:
+                print("ターゲット_"+str(self.target_marker_idx)+"の座標変換に失敗しました")
+                self.target_marker_idx += 1
+                if(self.target_marker_idx > 17):
+                    self.target_marker_idx = 6
             
-            self.send_goal_to_move_base(goal_pose)
+            else:
+                goal_pose = Pose()
+                goal_pose.position.x = trans[0]
+                goal_pose.position.y = trans[1]
+                goal_pose.position.z = trans[2]
+                goal_pose.orientation.x = rot[0]
+                goal_pose.orientation.y = rot[1]
+                goal_pose.orientation.z = rot[2]
+                goal_pose.orientation.w = rot[3]
+                
+                self.send_goal_to_move_base(goal_pose)
 
     def get_position_from_tf(self, target_link, base_link):
         trans = []
