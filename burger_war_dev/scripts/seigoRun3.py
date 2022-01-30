@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ast import Pass
-from asyncore import loop
-from tkinter import FIRST
 from waypoint import Waypoints
 
 from enum import Enum
