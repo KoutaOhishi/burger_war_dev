@@ -88,6 +88,7 @@ class SeigoRun3:
         self.my_pose_y = 1000              # init value
         self.my_direction_th = math.pi*100 # init value
         self.target_marker_idx = 6 #今取りに行こうとしているターゲット
+        self.first_move_did = False
 
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
@@ -352,8 +353,63 @@ class SeigoRun3:
     # ：敵に正対する
     # ：障害物の影に隠れる
     #-------------------------------------------#
+    def first_move(self):
+        # ゲーム開始直後に行う動作
+        # 手前のフィールドターゲットを３つを取る
+        # 赤サイド： 11,13,17
+        # 青サイド： 6,8,14
+        foreground_target_idx_list = []
+        if self.my_side == "b":
+            foreground_target_idx_list = [6,8,14]
+
+        elif self.my_side == "r":
+            foreground_target_idx_list = [11,13,17]
+
+        start_time = rospy.get_time()
+        while rospy.is_shutdown():
+            #target_17(一番最後)の座標登録が可能かどうかチェック
+            trans, rot, res = self.get_position_from_tf(self, "target_17", self.robot_namespace+"map")
+
+            if res == True:
+                break
+
+            if rospy.get_time() - start_time > 5:
+                #座標変換開始から5秒経過している場合
+                print("[seigoRun3:first_move]ターゲット_17の座標変換に失敗していますが、first_moveを実行します")
+                break
+            
+            rospy.sleep(1)
+
+        #手前の３つのフィールドターゲットを巡回する
+        target_idx = foreground_target_idx_list.pop(0)
+        self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+        while len(foreground_target_idx_list) == 0:
+            move_base_status = self.move_base_client.get_state()
+            if move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
+            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
+                
+                if(len(foreground_target_idx_list)==0):
+                    break #手前３つの巡回完了
+                else:
+                    target_idx = foreground_target_idx_list.pop(0)
+                    self.send_goal_pose_of_target_by_idx("target_"+str(target_idx))
+        
+        
+        print("[seigoRun3:first_move]手前3つのフィールドターゲットの巡回完了")
+        self.first_move_did = True
+
     def patrol(self):
         pass
+
+
+    def patrol(self):
+        pass
+
+    
 
 def main():
     rospy.init_node("seigo_run3")
@@ -364,8 +420,9 @@ def main():
         #some processes
         node.get_war_state()
 
-        node.process()
+        #node.process()
         #node.get_nearest_unaquired_target_idx()
+        node.first_move()
 
         loop_rate.sleep()
 
