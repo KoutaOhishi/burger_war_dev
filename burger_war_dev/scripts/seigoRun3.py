@@ -143,7 +143,7 @@ class SeigoRun3:
                 self.target_marker_idx = 6
             print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
             target_link = "target_"+str(self.target_marker_idx)
-            base_link = "base_link" #self.robot_namespace+"map"
+            base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
             if res == False:
                 print("ターゲット_"+str(self.target_marker_idx)+"の座標変換に失敗しました")
@@ -168,7 +168,7 @@ class SeigoRun3:
             #target_link = "target_"+str(nearest_target_idx)
             print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
             target_link = "target_"+str(self.target_marker_idx)
-            base_link = "base_link" #self.robot_namespace+"map"
+            base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
             if res == False:
                 print("ターゲット_"+str(self.target_marker_idx)+"の座標変換に失敗しました")
@@ -204,7 +204,7 @@ class SeigoRun3:
         #rospy.loginfo("[seigoRun3]コストマップをクリアします")
         self.clear_costmap.call()
         goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = self.robot_namespace+"map"
+        goal.target_pose.header.frame_id = "base_link" #self.robot_namespace+"map"
         goal.target_pose.header.stamp = rospy.Time.now()
 
         if type(arg) == Pose:
