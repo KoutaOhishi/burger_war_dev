@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from email.mime import base
+from pickle import STOP
 from waypoint import Waypoints
 
 from enum import Enum
@@ -71,6 +72,7 @@ PATROL     = 1
 LEAVE      = 2
 HIDE       = 3
 FACE       = 4
+RUN        = 5
 # ----------------------------------------
 
 class SeigoRun3:
@@ -497,7 +499,10 @@ class SeigoRun3:
             #return HIDE
 
         else: #敵はいない
-            return PATROL
+            if self.get_nearest_unaquired_target_idx() == -1: #フィールドターゲットを全部取った
+                return RUN
+            else: 
+                return PATROL
 
     def strategy_execute(self, strategy):
         if strategy == FIRST_MOVE:
@@ -508,6 +513,9 @@ class SeigoRun3:
         
         elif strategy == LEAVE:
             self.leave()
+        
+        elif strategy == RUN:
+            self.run()
 
     def cancel_goal(self):
         print("[seigoRun3]movebaseによる移動を停止します")
@@ -657,7 +665,8 @@ class SeigoRun3:
                 rospy.sleep(1)
                 loop_count += 1
     
-    def check_point_run(self):
+    def run(self):
+        #的に見つかるまで、もしくはフィールドターゲットを奪われるまでチェックポイントを回る
         check_point_idx = 0
         self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
 
@@ -681,7 +690,13 @@ class SeigoRun3:
             #敵の位置を確認
             exist, dist, dire = self.detect_enemy()
             if exist == True: #敵発見
-                print("[!!!! 敵発見 !!!!]距離："+str(dist))
+                print("[seigoRun3:run]!!!! 敵発見 !!!!")
+                break
+            
+            #フィールドターゲットの状況確認
+            if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
+                print("[seigoRun3:run]フィールドターゲットを奪われた")
+                break
 
 
 def main():
