@@ -87,6 +87,7 @@ class SeigoRun3:
         self.my_pose_x = 1000              # init value
         self.my_pose_y = 1000              # init value
         self.my_direction_th = math.pi*100 # init value
+        self.target_marker_idx = 6 #今取りに行こうとしているターゲット
 
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
@@ -133,10 +134,17 @@ class SeigoRun3:
         move_base_status = self.move_base_client.get_state()
         if move_base_status == actionlib.GoalStatus.ACTIVE:
             pass
-        
-        else:
-            nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
-            target_link = "target_"+str(nearest_target_idx)
+
+        elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+            print("ターゲット_"+str(self.target_marker_idx)+"に到着しました。")
+            self.target_marker_idx += 1
+            if(self.target_marker_idx > 17):
+                self.target_marker_idx = 6
+            print("次はターゲット_"+str(self.target_marker_idx)+"に向かいます。")
+       
+            #nearest_target_idx = self.get_nearest_unaquired_target_idx()#最短のターゲットのインデックス番号を取得
+            #target_link = "target_"+str(nearest_target_idx)
+            target_link = "target_"+str(self.target_marker_idx)
             base_link = self.robot_namespace+"map"
             trans, rot, res = self.get_position_from_tf(target_link, base_link)
             goal_pose = Pose()
@@ -147,6 +155,7 @@ class SeigoRun3:
             goal_pose.orientation.y = rot[1]
             goal_pose.orientation.z = rot[2]
             goal_pose.orientation.w = rot[3]
+            
             self.send_goal_to_move_base(goal_pose)
 
     def get_position_from_tf(self, target_link, base_link):
