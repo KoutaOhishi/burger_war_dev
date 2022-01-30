@@ -383,7 +383,7 @@ class SeigoRun3:
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
             #target_17(一番最後)の座標登録が可能かどうかチェック
-            trans, rot, res = self.get_position_from_tf(self, "target_17", self.robot_namespace+"map")
+            trans, rot, res = self.get_position_from_tf("target_17", self.robot_namespace+"map")
 
             if res == True:
                 break
