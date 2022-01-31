@@ -101,6 +101,9 @@ class SeigoRun3:
         self.target_marker_idx = 6 #今取りに行こうとしているターゲット
         self.first_move_did = False
 
+        self.enemy_distance_prev = 0.0
+        self.enemy_direction_diff_prev = 0.0
+
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
         self.enemy_position = Odometry()
@@ -158,6 +161,10 @@ class SeigoRun3:
         _, _, yaw = tf.transformations.euler_from_quaternion(rot)
         enemy_direction = math.atan2(dy, dx)
         enemy_direction_diff = angles.normalize_angle(enemy_direction-yaw)
+        
+        self.enemy_distance_prev = enemy_distance
+        self.enemy_direction_diff_prev = enemy_direction_diff
+
         return True, enemy_distance, enemy_direction_diff
 
 
@@ -490,7 +497,8 @@ class SeigoRun3:
 
         if exist == True: #敵発見
             print("[seigoRun3:strategy_decision]:敵を発見")
-            return LEAVE
+            #return LEAVE
+            return FACE
 
             #敵との距離の閾値を儲けたい
             #敵との向きに応じて処理を分ける（裏を取られたら・・・）
@@ -516,6 +524,9 @@ class SeigoRun3:
         elif strategy == LEAVE:
             self.leave()
         
+        elif strategy == FACE:
+            self.face()
+            
         elif strategy == RUN:
             self.run()
 
@@ -639,7 +650,20 @@ class SeigoRun3:
                 self.direct_twist_pub.publish(cmd_vel)
                 break
 
+    def face(self):
+        self.cancel_goal()
+        print("[seigoRun3:face]敵の方を向きます")
 
+        exist, dist, dire = self.detect_enemy() #再び敵検出
+        if exist == True: #敵発見
+            cmd_vel = self.turn_to_enemy(dire)
+        
+        else:
+            print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
+            cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
+
+        self.direct_twist_pub.publish(cmd_vel)
+            
 
     def patrol(self):
         #一番近くにある未取得のフィールドターゲットを探索する
