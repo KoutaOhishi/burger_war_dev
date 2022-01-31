@@ -653,9 +653,10 @@ class SeigoRun3:
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
-                print("[seigoRun3:patrol]!!! 敵発見 !!!")
-                self.cancel_goal()
-                break
+                if dist < 2.0:
+                    print("[seigoRun3:patrol]!!! 敵発見 !!!")
+                    self.cancel_goal()
+                    break
 
             move_base_status = self.move_base_client.get_state()
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
