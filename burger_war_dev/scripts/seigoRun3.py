@@ -599,7 +599,7 @@ class SeigoRun3:
     def leave(self):
         # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
         # 奇数番目のチェックポイントは障害物の陰になる
-        check_point_idx_list = [0,2,4,6] #[0,1,2,3,4,5,6,7]
+        check_point_idx_list = [0,1,2,3,4,5,6,7]
         dist_list = []
         for idx in range(len(check_point_idx_list)):
             target_frame_name = "check_point_"+str(idx)
