@@ -500,8 +500,9 @@ class SeigoRun3:
             #return LEAVE
             return FACE
 
-            #敵との距離の閾値を儲けたい
-            #敵との向きに応じて処理を分ける（裏を取られたら・・・）
+            #奇数番目のチェックポイントの近くで敵を見つけたら障害物の裏に隠れる
+            #return HIDE
+
             #if dist < 2.5:
             #    return LEAVE
             #else:
@@ -526,7 +527,7 @@ class SeigoRun3:
         
         elif strategy == FACE:
             self.face()
-            
+
         elif strategy == RUN:
             self.run()
 
@@ -749,8 +750,10 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
+        node.detect_enemy()
+        node.face()
         loop_rate.sleep()
 
 if __name__ == "__main__":
