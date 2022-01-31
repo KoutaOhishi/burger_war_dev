@@ -680,7 +680,7 @@ class SeigoRun3:
                 break
 
             else:
-                self.tweak_position("linear", -0.1, 0.1) #0.1秒 -0.1下がる
+                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.1下がる
                 rospy.sleep(1)
                 loop_count += 1
     
