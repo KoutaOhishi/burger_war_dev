@@ -672,54 +672,32 @@ class SeigoRun3:
             
             radian = math.atan2(trans[1], trans[0])
             degree = 180.00 * radian / math.pi
-            deg_speed = 90.0
-            moving_time = degree/deg_speed #回転する時間 
-
             cmd_vel = Twist()
-            cmd_vel.angular.z = deg_speed * math.pi / 180.0 # [rad]
 
-            start_time = end_time = rospy.get_time()
+            if degree > 0:
+                cmd_vel.angular.z = math.radians(10)
+            else:
+                cmd_vel.angular.z = -math.radians(10)
+            wait_time = float(abs(degree) / 10)
+            start_time = rospy.Time.now()
+
             loop_rate = rospy.Rate(30)
-            while end_time - start_time <= moving_time:
+            while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
                 self.direct_twist_pub.publish(cmd_vel)
-                end_time = rospy.get_time()
                 loop_rate.sleep()
-            print("[seigoRun3:face]回転終了")
-            
-            #停止
-            cmd_vel = Twist()
+
+            #回転停止
+            cmd_vel.angular.z = 0.0
             self.direct_twist_pub.publish(cmd_vel)
-            rospy.sleep(3)
 
-
-        """
-        #self.direct_twist_pub.publish(cmd_vel)
-        if exist == False: #敵の検出に失敗した場合
-            #dire = self.enemy_direction_diff_prev
-            print("[seigoRun3:face]敵は発見できませんでした")
-        else:
-            print("[seigoRun3:face]敵の方を向きます")
-            # direの分だけ回転する 
-            # https://kato-robotics.hatenablog.com/entry/2019/02/18/053255
-            print("[seigoRun3:face]["+str(dire)+"]だけ回転します")
-            cmd_vel = self.turn_to_enemy(dire)
-            deg = cmd_vel.angular.z * (180.0/math.pi) #rad->deg
-            deg_speed = 45.0 #[deg/s] 
-            moving_time = 1 #deg/deg_speed #回転する時間 
-
-            start_time = end_time = rospy.get_time()
-            loop_rate = rospy.Rate(30)
-            while end_time - start_time <= moving_time:
-                self.direct_twist_pub.publish(cmd_vel)
-                end_time = rospy.get_time()
-                loop_rate.sleep()
             print("[seigoRun3:face]回転終了")
+
             
-            #停止
-            cmd_vel = Twist()
-            self.direct_twist_pub.publish(cmd_vel)
-            rospy.sleep(3)
-        """
+            
+
+
+        
+        
 
 
     def patrol(self):
