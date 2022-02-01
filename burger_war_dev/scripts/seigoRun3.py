@@ -621,12 +621,14 @@ class SeigoRun3:
                 self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
                 (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
                 dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
-                dist_list.append(dist)
 
             except Exception as e:
                 rospy.logwarn("Except:[seigoRun3:leave]")
                 rospy.logwarn(str(e))
-                dist_list.append(0.00)
+                dist = 0.00
+            
+            dist_list.append(dist)
+            print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
         
         farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
         print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
