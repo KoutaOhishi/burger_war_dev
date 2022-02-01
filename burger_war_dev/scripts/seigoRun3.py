@@ -652,18 +652,16 @@ class SeigoRun3:
                 break
 
     def face(self):
-        #self.cancel_goal()
-        #print("[seigoRun3:face]敵の方を向きます")
+        self.cancel_goal()
+        print("[seigoRun3:face]")
 
         exist, dist, dire = self.detect_enemy() #再び敵検出
-        #if exist == True: #敵発見
-            #cmd_vel = self.turn_to_enemy(dire)
-        
-        #else:
-            #print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
-            #cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
-        
-        if exist == True:
+        if exist == False:
+            print("[seigoRun3:face]敵は周りにいません")
+
+        elif exist == True:
+            print("[seigoRun3:face]敵を発見！")
+            
             #敵との相対的なTFを算出
             base_frame_name = "base_link"
             enemy_frame_name = self.robot_namespace + "/enemy_closest"
@@ -675,12 +673,13 @@ class SeigoRun3:
             cmd_vel = Twist()
 
             if degree > 0:
-                cmd_vel.angular.z = math.radians(30)
+                cmd_vel.angular.z = math.radians(20)
             else:
-                cmd_vel.angular.z = -math.radians(30)
-            wait_time = float(abs(degree) / 30)
+                cmd_vel.angular.z = -math.radians(20)
+            wait_time = float(abs(degree) / 20)
             start_time = rospy.Time.now()
 
+            print("[seigoRun3:face]回転開始")
             loop_rate = rospy.Rate(30)
             while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
                 self.direct_twist_pub.publish(cmd_vel)
@@ -691,13 +690,6 @@ class SeigoRun3:
             self.direct_twist_pub.publish(cmd_vel)
 
             print("[seigoRun3:face]回転終了")
-
-            
-            
-
-
-        
-        
 
 
     def patrol(self):
@@ -786,8 +778,7 @@ def main():
     while not rospy.is_shutdown():
         #strategy = node.strategy_decision()
         #node.strategy_execute(strategy)
-        node.detect_enemy()
-        node.face()
+        node.run()
         loop_rate.sleep()
 
 if __name__ == "__main__":
