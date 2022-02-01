@@ -665,7 +665,8 @@ class SeigoRun3:
 
         #self.direct_twist_pub.publish(cmd_vel)
         if exist == False: #敵の検出に失敗した場合
-            dire = self.enemy_direction_diff_prev
+            #dire = self.enemy_direction_diff_prev
+            print("[seigoRun3:face]敵は発見できませんでした")
         else:
             print("[seigoRun3:face]敵の方を向きます")
             # direの分だけ回転する 
