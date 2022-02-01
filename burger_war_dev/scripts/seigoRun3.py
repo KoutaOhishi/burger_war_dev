@@ -680,7 +680,7 @@ class SeigoRun3:
         start_time = end_time = rospy.get_time()
         loop_rate = rospy.Rate(30)
         while end_time - start_time <= moving_time:
-            self.direct_twist_pub(cmd_vel)
+            self.direct_twist_pub.publish(cmd_vel)
             end_time = rospy.get_time()
             loop_rate.sleep()
         print("[seigoRun3:face]回転終了")
