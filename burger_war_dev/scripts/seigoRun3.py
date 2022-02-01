@@ -675,7 +675,7 @@ class SeigoRun3:
             cmd_vel = self.turn_to_enemy(dire)
             deg = cmd_vel.angular.z * (180.0/math.pi) #rad->deg
             deg_speed = 45.0 #[deg/s] 
-            moving_time = 1#deg/deg_speed #回転する時間 
+            moving_time = deg/deg_speed #回転する時間 
 
             start_time = end_time = rospy.get_time()
             loop_rate = rospy.Rate(30)
@@ -684,6 +684,10 @@ class SeigoRun3:
                 end_time = rospy.get_time()
                 loop_rate.sleep()
             print("[seigoRun3:face]回転終了")
+            
+            #停止
+            cmd_vel = Twist()
+            self.direct_twist_pub.publish(cmd_vel)
             rospy.sleep(3)
 
 
