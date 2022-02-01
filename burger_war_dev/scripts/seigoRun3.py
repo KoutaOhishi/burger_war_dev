@@ -675,10 +675,10 @@ class SeigoRun3:
             cmd_vel = Twist()
 
             if degree > 0:
-                cmd_vel.angular.z = math.radians(10)
+                cmd_vel.angular.z = math.radians(30)
             else:
-                cmd_vel.angular.z = -math.radians(10)
-            wait_time = float(abs(degree) / 10)
+                cmd_vel.angular.z = -math.radians(30)
+            wait_time = float(abs(degree) / 30)
             start_time = rospy.Time.now()
 
             loop_rate = rospy.Rate(30)
