@@ -652,7 +652,7 @@ class SeigoRun3:
                 break
 
     def face(self):
-        self.cancel_goal()
+        #self.cancel_goal()
         #print("[seigoRun3:face]敵の方を向きます")
 
         exist, dist, dire = self.detect_enemy() #再び敵検出
