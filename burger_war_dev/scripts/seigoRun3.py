@@ -670,12 +670,10 @@ class SeigoRun3:
         # direの分だけ回転する 
         # https://kato-robotics.hatenablog.com/entry/2019/02/18/053255
         print("[seigoRun3:face]["+str(dire)+"]だけ回転します")
-        theta = dire #[deg]
-        speed = 90.0 #[deg/s]
-        moving_time = theta/speed
-
-        cmd_vel = Twist()
-        cmd_vel.angular.z = speed*math.pi/180.0 #[rad]
+        cmd_vel = self.turn_to_enemy(dire)
+        deg = cmd_vel.angular.z * (180.0/math.pi) #rad->deg
+        deg_speed = 90.0 #[deg/s] 
+        moving_time = deg/deg_speed #回転する時間 
 
         start_time = end_time = rospy.get_time()
         loop_rate = rospy.Rate(30)
@@ -684,7 +682,7 @@ class SeigoRun3:
             end_time = rospy.get_time()
             loop_rate.sleep()
         print("[seigoRun3:face]回転終了")
-        rospy.sleep(1)
+        rospy.sleep(3)
 
 
     def patrol(self):
