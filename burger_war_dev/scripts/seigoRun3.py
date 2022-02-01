@@ -656,15 +656,36 @@ class SeigoRun3:
         print("[seigoRun3:face]敵の方を向きます")
 
         exist, dist, dire = self.detect_enemy() #再び敵検出
-        if exist == True: #敵発見
-            cmd_vel = self.turn_to_enemy(dire)
+        #if exist == True: #敵発見
+            #cmd_vel = self.turn_to_enemy(dire)
         
-        else:
-            print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
-            cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
+        #else:
+            #print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
+            #cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
 
-        self.direct_twist_pub.publish(cmd_vel)
-            
+        #self.direct_twist_pub.publish(cmd_vel)
+        if exist == False: #敵の検出に失敗した場合
+            dire = self.enemy_direction_diff_prev
+        
+        # direの分だけ回転する 
+        # https://kato-robotics.hatenablog.com/entry/2019/02/18/053255
+        print("[seigoRun3:face]["+str(dire)+"]だけ回転します")
+        theta = dire #[deg]
+        speed = 90.0 #[deg/s]
+        moving_time = theta/speed
+
+        cmd_vel = Twist()
+        cmd_vel.angular.z = speed*math.pi/180.0 #[rad]
+
+        start_time = end_time = rospy.Time.now()
+        loop_rate = rospy.Rate(30)
+        while end_time - start_time <= moving_time:
+            self.direct_twist_pub(cmd_vel)
+            end_time = rospy.Time.now()
+            loop_rate.sleep()
+        print("[seigoRun3:face]回転終了")
+        rospy.sleep(1)
+
 
     def patrol(self):
         #一番近くにある未取得のフィールドターゲットを探索する
