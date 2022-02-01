@@ -662,7 +662,19 @@ class SeigoRun3:
         #else:
             #print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
             #cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
+        
+        #敵との相対的なTFを算出
+        base_frame_name = "base_link"
+        enemy_frame_name = self.robot_namespace + "/enemy_closest"
+        trans, rot, res = self.get_position_from_tf(enemy_frame_name, base_frame_name)
+        
+        radian = math.atan2(trans[1], trans[0])
+        degree = 180.00 * radian / math.pi
 
+        print("[seigoRun3:face]deg["+str(degree)+"]")
+
+
+        """
         #self.direct_twist_pub.publish(cmd_vel)
         if exist == False: #敵の検出に失敗した場合
             #dire = self.enemy_direction_diff_prev
@@ -689,6 +701,7 @@ class SeigoRun3:
             cmd_vel = Twist()
             self.direct_twist_pub.publish(cmd_vel)
             rospy.sleep(3)
+        """
 
 
     def patrol(self):
