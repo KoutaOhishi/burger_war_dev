@@ -672,8 +672,24 @@ class SeigoRun3:
             
             radian = math.atan2(trans[1], trans[0])
             degree = 180.00 * radian / math.pi
+            deg_speed = 90.0
+            moving_time = degree/deg_speed #回転する時間 
 
-            print("[seigoRun3:face]deg["+str(degree)+"]")
+            cmd_vel = Twist()
+            cmd_vel.angular.z = deg_speed * math.pi / 180.0 # [rad]
+
+            start_time = end_time = rospy.get_time()
+            loop_rate = rospy.Rate(30)
+            while end_time - start_time <= moving_time:
+                self.direct_twist_pub.publish(cmd_vel)
+                end_time = rospy.get_time()
+                loop_rate.sleep()
+            print("[seigoRun3:face]回転終了")
+            
+            #停止
+            cmd_vel = Twist()
+            self.direct_twist_pub.publish(cmd_vel)
+            rospy.sleep(3)
 
 
         """
