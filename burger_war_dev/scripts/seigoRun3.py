@@ -663,7 +663,7 @@ class SeigoRun3:
             #print("[seigoRun3:face]敵を見失ったので最後に検出したときの情報を使用")
             #cmd_vel = self.turn_to_enemy(self.enemy_direction_diff_prev)
         
-        if exist == True;
+        if exist == True:
             #敵との相対的なTFを算出
             base_frame_name = "base_link"
             enemy_frame_name = self.robot_namespace + "/enemy_closest"
