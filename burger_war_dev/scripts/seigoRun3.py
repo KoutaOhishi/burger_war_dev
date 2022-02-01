@@ -675,7 +675,7 @@ class SeigoRun3:
             cmd_vel = self.turn_to_enemy(dire)
             deg = cmd_vel.angular.z * (180.0/math.pi) #rad->deg
             deg_speed = 45.0 #[deg/s] 
-            moving_time = deg/deg_speed #回転する時間 
+            moving_time = 1 #deg/deg_speed #回転する時間 
 
             start_time = end_time = rospy.get_time()
             loop_rate = rospy.Rate(30)
