@@ -497,8 +497,8 @@ class SeigoRun3:
 
         if exist == True: #敵発見
             print("[seigoRun3:strategy_decision]:敵を発見")
-            #return LEAVE
-            return FACE
+            return LEAVE
+            #return FACE
 
             #奇数番目のチェックポイントの近くで敵を見つけたら障害物の裏に隠れる
             #return HIDE
