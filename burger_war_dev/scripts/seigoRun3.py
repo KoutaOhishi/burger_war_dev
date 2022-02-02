@@ -627,7 +627,7 @@ class SeigoRun3:
             farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
             print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
         
-            #移動開始
+            #チェックポイントに移動開始
             self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
             while not rospy.is_shutdown():
                 move_base_status = self.move_base_client.get_state()
@@ -653,6 +653,32 @@ class SeigoRun3:
 
                     else:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 距離が遠いので無視します")
+
+        print("[seigoRun3:leave]一番近くにある未取得のフィールドターゲットを狙います")
+        target_idx = self.get_nearest_unaquired_target_idx()
+
+        res = self.send_goal_pose_of_target_by_idx(target_idx)
+        if res == True: 
+            print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動します")
+
+        while not rospy.is_shutdown():
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                if dist < 0.5:
+                    print("[seigoRun3:leave]!!! 敵発見 !!!")
+                    self.cancel_goal()
+                    break
+
+            move_base_status = self.move_base_client.get_state()
+            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    print("[seigoRun3:leave]target_"+str(target_idx)+"に到着")   
+                break
+            
+            elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
 
     def face(self):
         self.cancel_goal()
