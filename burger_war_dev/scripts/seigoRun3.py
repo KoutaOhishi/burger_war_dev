@@ -651,9 +651,13 @@ class SeigoRun3:
                 
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
                 if exist == True: #敵発見
-                    print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
-                    self.face()
-                    break
+                    if dist < 1.5:
+                        print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
+                        self.face()
+                        break
+
+                    else:
+                        print("[seigoRun3:leave]!!! 敵発見 !!! 距離が遠いので無視します")
 
     def face(self):
         self.cancel_goal()
