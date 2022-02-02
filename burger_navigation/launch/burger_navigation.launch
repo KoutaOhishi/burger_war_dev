@@ -61,7 +61,8 @@
   </node>
 
   <!-- move_base -->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <!-- node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" >
     <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> -->
     <param name="base_local_planner" value="following_planner/FollowingPlannerROS" />
     <param name="base_global_planner" value="global_planner/GlobalPlanner" />
