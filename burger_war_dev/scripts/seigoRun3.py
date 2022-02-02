@@ -657,22 +657,13 @@ class SeigoRun3:
 
     def face(self):
         self.cancel_goal()
-        print("[seigoRun3:face]")
-
         exist, dist, dire = self.detect_enemy() #再び敵検出
+        
         if exist == False:
             print("[seigoRun3:face]敵は周りにいません")
 
         elif exist == True:
-            print("[seigoRun3:face]敵を発見！")
-            
-            #敵との相対的なTFを算出
-            #base_frame_name = "base_link"
-            #enemy_frame_name = self.robot_namespace + "/enemy_closest"
-            #trans, rot, res = self.get_position_from_tf(enemy_frame_name, base_frame_name)
-            
-            #radian = math.atan2(trans[1], trans[0])
-            #degree = 180.00 * radian / math.pi
+            print("[seigoRun3:face]敵を発見！敵の方を向きます")
             degree = 180.00 * dire / math.pi
             cmd_vel = Twist()
 
@@ -683,7 +674,7 @@ class SeigoRun3:
             wait_time = float(abs(degree) / 20)
             start_time = rospy.Time.now()
 
-            print("[seigoRun3:face]回転開始")
+            #print("[seigoRun3:face]回転開始")
             loop_rate = rospy.Rate(30)
             while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
                 self.direct_twist_pub.publish(cmd_vel)
@@ -692,8 +683,7 @@ class SeigoRun3:
             #回転停止
             cmd_vel.angular.z = 0.0
             self.direct_twist_pub.publish(cmd_vel)
-
-            print("[seigoRun3:face]回転終了")
+            #print("[seigoRun3:face]回転終了")
 
 
     def patrol(self):
@@ -780,9 +770,8 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
-        node.face()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
         
         loop_rate.sleep()
 
