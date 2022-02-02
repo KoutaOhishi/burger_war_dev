@@ -782,7 +782,7 @@ def main():
     while not rospy.is_shutdown():
         #strategy = node.strategy_decision()
         #node.strategy_execute(strategy)
-        node.face(9)
+        node.face()
         
         loop_rate.sleep()
 
