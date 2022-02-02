@@ -554,10 +554,10 @@ class SeigoRun3:
         # 青サイド： 6,8,14
         foreground_target_idx_list = []
         if self.my_side == "b":
-            foreground_target_idx_list = [6,14,8]
+            foreground_target_idx_list = [6,8,14]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [13,17,11]
+            foreground_target_idx_list = [13,11,17]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
