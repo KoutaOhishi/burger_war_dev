@@ -792,8 +792,12 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
+
+        exist, dist, dire = node.detect_enemy() #敵がいないか確認
+        if exist == True:
+            print("[seigoRun3]dist"+str(dist))
         
         loop_rate.sleep()
 
