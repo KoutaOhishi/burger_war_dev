@@ -139,36 +139,24 @@ class SeigoRun3:
         self.enemy_position = msg
     
     def detect_enemy(self):
-        time_diff = rospy.Time.now().to_sec() - self.enemy_position.header.stamp.to_sec()
-        if time_diff > self.enemy_time_tolerance:   # 敵情報が古かったら無視
-            self.detect_counter = 0
-            return False, 0.0, 0.0
-        else:
-            self.detect_counter = self.detect_counter+1
-            if self.detect_counter < self.counter_th:
-                return False, 0.0, 0.0
+        print("[seigoRun:detect_enemy]敵検出スタート")
+        base_frame_name = "base_link"
+        enemy_frame_name = self.robot_namespace + "/enemy_closest"
+        trans, rot, res = self.get_position_from_tf(enemy_frame_name, base_frame_name)
 
-        map_topic = self.robot_namespace+"map"
-        baselink_topic = self.robot_namespace+"base_link"
-        trans, rot,  vaild = self.get_position_from_tf(
-            map_topic, baselink_topic)
-        if vaild == False:
+        if res == False:
+            print("[seigoRun3:detect_enemy]enemy_closestを座標変換できません")
             return False, 0.0, 0.0
         
-        dx = self.enemy_position.pose.pose.position.x - trans[0]
-        dy = self.enemy_position.pose.pose.position.y - trans[1]
-        enemy_distance = math.sqrt(dx*dx+dy*dy)
-
-        _, _, yaw = tf.transformations.euler_from_quaternion(rot)
-        enemy_direction = math.atan2(dy, dx)
-        enemy_direction_diff = angles.normalize_angle(enemy_direction-yaw)
+        enemy_dist = math.sqrt(trans[0]*trans[0]+trans[1]*trans[1])
+        enemy_dire = math.atan2(trans[1], trans[0])
         
-        self.enemy_distance_prev = enemy_distance
-        self.enemy_direction_diff_prev = enemy_direction_diff
+        self.enemy_distance_prev = enemy_dist
+        self.enemy_direction_diff_prev = enemy_dire
 
         self.enemy_detect_last_time = rospy.get_time()
 
-        return True, enemy_distance, enemy_direction_diff
+        return True, enemy_dist, enemy_dire
 
 
     def get_position_from_tf(self, target_link, base_link):
@@ -679,13 +667,13 @@ class SeigoRun3:
             print("[seigoRun3:face]敵を発見！")
             
             #敵との相対的なTFを算出
-            base_frame_name = "base_link"
-            enemy_frame_name = self.robot_namespace + "/enemy_closest"
+            #base_frame_name = "base_link"
+            #enemy_frame_name = self.robot_namespace + "/enemy_closest"
+            #trans, rot, res = self.get_position_from_tf(enemy_frame_name, base_frame_name)
             
-            trans, rot, res = self.get_position_from_tf(enemy_frame_name, base_frame_name)
-            
-            radian = math.atan2(trans[1], trans[0])
-            degree = 180.00 * radian / math.pi
+            #radian = math.atan2(trans[1], trans[0])
+            #degree = 180.00 * radian / math.pi
+            degree = 180.00 * dire / math.pi
             cmd_vel = Twist()
 
             if degree > 0:
