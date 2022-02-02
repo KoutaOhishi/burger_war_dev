@@ -103,6 +103,7 @@ class SeigoRun3:
 
         self.enemy_distance_prev = 0.0
         self.enemy_direction_diff_prev = 0.0
+        self.enemy_detect_last_time = rospy.get_time()
 
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
@@ -164,6 +165,8 @@ class SeigoRun3:
         
         self.enemy_distance_prev = enemy_distance
         self.enemy_direction_diff_prev = enemy_direction_diff
+
+        self.enemy_detect_last_time = rospy.get_time()
 
         return True, enemy_distance, enemy_direction_diff
 
@@ -649,9 +652,14 @@ class SeigoRun3:
                     print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
                     rospy.sleep(1)
                 
+                dist_thresh = 1.5
+                time_thresh = 5
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
                 if exist == True: #敵発見
-                    if dist < 1.5:
+                    if rospy.get_time() - self.enemy_detect_last_time < time_thresh:
+                        print("[seigoRun3:leave]!!! 敵発見 !!! 最後に検出してから時間が経ってないので無視します")
+                    
+                    elif dist < dist_thresh:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
                         self.face()
                         break
