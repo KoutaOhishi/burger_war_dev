@@ -611,47 +611,49 @@ class SeigoRun3:
     def leave(self):
         # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
         # 奇数番目のチェックポイントは障害物の陰になる
-        check_point_idx_list = [0,1,2,3,4,5,6,7]
-        dist_list = []
-        for idx in range(len(check_point_idx_list)):
-            target_frame_name = "check_point_"+str(idx)
-            source_frame_name = self.robot_namespace + "/enemy_closest"
-            
-            try:
-                self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
-                (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
-                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+         #敵の位置を確認
+        exist, dist, dire = self.detect_enemy()
 
-            except Exception as e:
-                rospy.logwarn("Except:[seigoRun3:leave]")
-                rospy.logwarn(str(e))
-                dist = 0.00
-            
-            dist_list.append(dist)
-            print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
-        
-        farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
-        print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
-        
-        #移動開始
-        self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
-        while not rospy.is_shutdown():
-            move_base_status = self.move_base_client.get_state()
-            if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に到着")
-                break
+        if exist == True: #敵発見
+            check_point_idx_list = [0,1,2,3,4,5,6,7]
+            dist_list = []
+            for idx in range(len(check_point_idx_list)):
+                target_frame_name = "check_point_"+str(idx)
+                source_frame_name = self.robot_namespace + "/enemy_closest"
+                
+                try:
+                    self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
+                    (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
+                    dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
 
-            elif move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
-                rospy.sleep(1)
+                except Exception as e:
+                    rospy.logwarn("Except:[seigoRun3:leave]")
+                    rospy.logwarn(str(e))
+                    dist = 0.00
+                
+                dist_list.append(dist)
+                print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
             
-            exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            if exist == True: #敵発見
-                print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
-                self.cancel_goal()
-                cmd_vel = self.turn_to_enemy(dire)
-                self.direct_twist_pub.publish(cmd_vel)
-                break
+            farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
+            print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
+        
+            #移動開始
+            self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
+            while not rospy.is_shutdown():
+                move_base_status = self.move_base_client.get_state()
+                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に到着")
+                    break
+
+                elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                    print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
+                    rospy.sleep(1)
+                
+                exist, dist, dire = self.detect_enemy() #敵がいないか確認
+                if exist == True: #敵発見
+                    print("[seigoRun3:leave]!!! 敵発見 !!! 敵の方を向きます")
+                    self.face()
+                    break
 
     def face(self):
         self.cancel_goal()
