@@ -557,8 +557,7 @@ class SeigoRun3:
 
             else:
                 print("[seigoRun3:first_move]ターゲット_17の座標変換に失敗")
-            
-            rospy.sleep(1)
+                rospy.sleep(1)
 
         #手前の３つのフィールドターゲットを巡回する
         target_idx = foreground_target_idx_list.pop(0)
@@ -640,7 +639,7 @@ class SeigoRun3:
                     print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
                     rospy.sleep(1)
                 
-                dist_thresh = 1.5
+                dist_thresh = 0.75
                 time_thresh = 5
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
                 if exist == True: #敵発見
@@ -725,7 +724,7 @@ class SeigoRun3:
                 break
 
             else:
-                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.1下がる
+                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
                 rospy.sleep(1)
                 loop_count += 1
     
