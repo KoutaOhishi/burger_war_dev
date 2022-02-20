@@ -578,10 +578,18 @@ class SeigoRun3:
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
-                rospy.sleep(1)
+                #rospy.sleep(1)
 
                 # 画角内にマーカーがうまく入らない場合の処理
-                # ...
+                while not rospy.is_shutdown():
+                    if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
+                        break 
+                
+                    else:
+                        print("[seigotRun3:first_move]target_"+str(target_idx)+"の検出ができないのでバックします")
+                        self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
+                        
+                        
 
 
                 if(len(foreground_target_idx_list)==0):
