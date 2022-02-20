@@ -542,10 +542,10 @@ class SeigoRun3:
         # 青サイド： 6,8,14
         foreground_target_idx_list = []
         if self.my_side == "b":
-            foreground_target_idx_list = [6,8,14]
+            foreground_target_idx_list = [6,14,8]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [13,11,17]
+            foreground_target_idx_list = [11,17,13]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
@@ -599,9 +599,8 @@ class SeigoRun3:
         self.first_move_did = True
 
     def leave(self):
-        # 敵の対角線上にあるcheck_point(8個)に移動（敵から離れる）
-        # 奇数番目のチェックポイントは障害物の陰になる
-         #敵の位置を確認
+        # ①一番近くにあるチェックポイントに移動
+        # ②今いるチェックポイントの両隣のチェックポイントの
         exist, dist, dire = self.detect_enemy()
 
         if exist == True: #敵発見
@@ -679,8 +678,14 @@ class SeigoRun3:
                 print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動中")
                 rospy.sleep(1)
 
+    def hide(self):
+        #障害物の影に隠れる
+        #①ロボットのリアを起点に、一番近いチェックポイントを探索
+        #②
+        pass
 
     def face(self):
+        #移動中であれば停止し敵の方を向く
         self.cancel_goal()
         exist, dist, dire = self.detect_enemy() #再び敵検出
         
