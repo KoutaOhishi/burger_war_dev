@@ -662,8 +662,16 @@ class SeigoRun3:
                     rospy.sleep(1)
                 
                 dist_thresh = 0.75
-                time_thresh = 5
+                time_thresh = 1
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
+                if exist == True:
+                    if dist < 1.0:
+                        print("[seigoRun3:leave]1.0以内に敵を発見。leave関数を終了します。")
+                        break
+
+                    else:
+                        print("[seigoRun3:leave]敵を発見。しかし1.0以上離れているのでleave関数を継続します。")
+                """
                 if exist == True: #敵発見
                     if rospy.get_time() - self.enemy_detect_last_time < time_thresh:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 最後に検出してから時間が経ってないので無視します")
@@ -675,6 +683,7 @@ class SeigoRun3:
 
                     else:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 距離が遠いので無視します")
+                """
 
             print("[seigoRun3:leave]一番近くにある未取得のフィールドターゲットを狙います")
             target_idx = self.get_nearest_unaquired_target_idx()
