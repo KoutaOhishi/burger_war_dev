@@ -487,10 +487,14 @@ class SeigoRun3:
         exist, dist, dire = self.detect_enemy()
 
         #if exist == True: #敵発見
+        if exist == True and dist < 1.0:
+            print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対します。")
+            return FACE
+
         if exist == True and dist < 1.5:
-            print("[seigoRun3:strategy_decision]:閾値以内の範囲に敵を発見")
+            print("[seigoRun3:strategy_decision]:閾値以内の範囲に敵を発見。遠くに逃げます。")
             return LEAVE
-            #return FACE
+            
 
             #奇数番目のチェックポイントの近くで敵を見つけたら障害物の裏に隠れる
             #return HIDE
