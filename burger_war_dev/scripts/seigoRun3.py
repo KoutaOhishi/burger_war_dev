@@ -486,8 +486,9 @@ class SeigoRun3:
         #敵の位置を確認
         exist, dist, dire = self.detect_enemy()
 
-        if exist == True: #敵発見
-            print("[seigoRun3:strategy_decision]:敵を発見")
+        #if exist == True: #敵発見
+        if exist == True and dist < 1.5:
+            print("[seigoRun3:strategy_decision]:閾値以内の範囲に敵を発見")
             return LEAVE
             #return FACE
 
@@ -499,8 +500,13 @@ class SeigoRun3:
             #else:
             #    return PATROL
             #return HIDE
+        
+        else:
+            if exist == True:
+                print("[seigoRun3:strategy_decision]:敵を発見!しかし閾値より遠くにいるので無視します。")
+            else:
+                print("[seigoRun3:strategy_decision]:周りに敵はいません。")
 
-        else: #敵はいない
             if self.get_nearest_unaquired_target_idx() == -1: #フィールドターゲットを全部取った
                 return RUN
             else: 
@@ -540,6 +546,7 @@ class SeigoRun3:
         # 手前のフィールドターゲットを３つを取る
         # 赤サイド： 11,13,17
         # 青サイド： 6,8,14
+        print("[seigoRun3:first_move]開始")
         foreground_target_idx_list = []
         if self.my_side == "b":
             foreground_target_idx_list = [6,14,8]
@@ -612,7 +619,10 @@ class SeigoRun3:
         # ②今いるチェックポイントの両隣のチェックポイントの
         exist, dist, dire = self.detect_enemy()
 
-        if exist == True: #敵発見
+        if exist == False: #敵を未検出
+            print("[seigoRun3:leave]敵を検出することができませんでした。")
+
+        else: #敵発見
             check_point_idx_list = [0,2,4,6]#[0,1,2,3,4,5,6,7]
             dist_list = []
             for idx in range(len(check_point_idx_list)):
@@ -662,40 +672,43 @@ class SeigoRun3:
                     else:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 距離が遠いので無視します")
 
-        print("[seigoRun3:leave]一番近くにある未取得のフィールドターゲットを狙います")
-        target_idx = self.get_nearest_unaquired_target_idx()
+            print("[seigoRun3:leave]一番近くにある未取得のフィールドターゲットを狙います")
+            target_idx = self.get_nearest_unaquired_target_idx()
 
-        res = self.send_goal_pose_of_target_by_idx(target_idx)
-        if res == True: 
-            print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動します")
+            res = self.send_goal_pose_of_target_by_idx(target_idx)
+            if res == True: 
+                print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動します")
 
-        while not rospy.is_shutdown():
-            exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            if exist == True: #敵発見
-                if dist < 0.5:
-                    print("[seigoRun3:leave]!!! 敵発見 !!!")
-                    self.cancel_goal()
+            while not rospy.is_shutdown():
+                exist, dist, dire = self.detect_enemy() #敵がいないか確認
+                if exist == True: #敵発見
+                    if dist < 0.5:
+                        print("[seigoRun3:leave]!!! 敵発見 !!!")
+                        self.cancel_goal()
+                        break
+
+                move_base_status = self.move_base_client.get_state()
+                if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                        print("[seigoRun3:leave]target_"+str(target_idx)+"に到着")   
                     break
-
-            move_base_status = self.move_base_client.get_state()
-            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                    print("[seigoRun3:leave]target_"+str(target_idx)+"に到着")   
-                break
-            
-            elif move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動中")
-                rospy.sleep(1)
+                
+                elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                    print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動中")
+                    rospy.sleep(1)
+        
+        print("[seigoRun3:leave]終了")
 
     def hide(self):
         #障害物の影に隠れる
         #①ロボットのリアを起点に、一番近いチェックポイントを探索
         #②
-        pass
+        print("[seigoRun3:hide]開始")
+        print("[seigoRun3:hide]終了")
 
     def face(self):
         #移動中であれば停止し敵の方を向く
-        self.cancel_goal()
+        print("[seigoRun3:face]開始")
         exist, dist, dire = self.detect_enemy() #再び敵検出
         
         if exist == False:
@@ -727,7 +740,7 @@ class SeigoRun3:
 
     def patrol(self):
         #一番近くにある未取得のフィールドターゲットを探索する
-        print("[seigoRun3:patrol]一番近くにある未取得のフィールドターゲットを狙います")
+        print("[seigoRun3:patrol]開始：一番近くにある未取得のフィールドターゲットを狙います")
         target_idx = self.get_nearest_unaquired_target_idx()
 
         res = self.send_goal_pose_of_target_by_idx(target_idx)
@@ -767,8 +780,11 @@ class SeigoRun3:
                 self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
                 rospy.sleep(1)
                 loop_count += 1
+        
+        print("[seigoRun3:patrol]終了")
     
     def run(self):
+        print("[seigoRun3:run]開始")
         #的に見つかるまで、もしくはフィールドターゲットを奪われるまでチェックポイントを回る
         check_point_idx = 0
         self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
@@ -809,9 +825,9 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
-        node.patrol()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
+        
         loop_rate.sleep()
 
 if __name__ == "__main__":
