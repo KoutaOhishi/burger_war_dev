@@ -556,7 +556,7 @@ class SeigoRun3:
             foreground_target_idx_list = [6,14,8]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [11,17,13]
+            foreground_target_idx_list = [13,17,11]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
@@ -748,6 +748,11 @@ class SeigoRun3:
             cmd_vel.angular.z = 0.0
             self.direct_twist_pub.publish(cmd_vel)
             #print("[seigoRun3:face]回転終了")
+        
+        ###
+        # ずっとfaceが続くと硬直状態が続く可能性があるので、正対しながら移動させたい
+        ###
+        print("[seigoRun3:face]終了")
 
 
     def patrol(self):
