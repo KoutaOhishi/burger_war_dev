@@ -592,7 +592,9 @@ class SeigoRun3:
                 #rospy.sleep(1)
 
                 # 画角内にマーカーがうまく入らない場合の処理
-                while not rospy.is_shutdown():
+                loop_counter = 0
+                while loop_counter < 3:
+                    loop_counter += 1
                     if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
                         break 
                 
@@ -600,9 +602,6 @@ class SeigoRun3:
                         print("[seigotRun3:first_move]target_"+str(target_idx)+"の検出ができないのでバックします")
                         self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
                         
-                        
-
-
                 if(len(foreground_target_idx_list)==0):
                     break #手前３つの巡回完了
                 
