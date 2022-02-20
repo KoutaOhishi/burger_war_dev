@@ -567,11 +567,12 @@ class SeigoRun3:
             print("[seigoRun3:first_move]target_"+str(target_idx)+"に向かって移動します")
                 
         while not rospy.is_shutdown():
-            exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            if exist == True: #敵発見
-                print("[seigoRun3:first_move]!!! 敵発見 !!!")
-                self.cancel_goal()
-                break
+            ### 開始直後は敵がいる可能性は低いので予期せぬ動作を起こさせないために、敵検出処理はスキップする
+            #exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            #if exist == True: #敵発見
+            #    print("[seigoRun3:first_move]!!! 敵発見 !!!")
+            #    self.cancel_goal()
+            #    break
 
             move_base_status = self.move_base_client.get_state()
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
