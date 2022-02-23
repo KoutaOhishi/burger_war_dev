@@ -737,7 +737,7 @@ class SeigoRun3:
             check_point_idx_list = [0,2,4,6]#[0,1,2,3,4,5,6,7]
             dist_list = []
             for idx in range(len(check_point_idx_list)):
-                target_frame_name = "check_point_"+str(idx)
+                target_frame_name = "check_point_"+str(check_point_idx_list[idx])
                 source_frame_name = self.robot_namespace + "/enemy_closest"
                 
                 try:
@@ -751,7 +751,7 @@ class SeigoRun3:
                     dist = 0.00
                 
                 dist_list.append(dist)
-                print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
+                print("[seigoRun3:leave]check_point_"+str(check_point_idx_list[idx])+"までの距離："+str(dist))
             
             farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
             print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
@@ -1020,11 +1020,9 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
         
-        #node.face()
-
         loop_rate.sleep()
 
 if __name__ == "__main__":
