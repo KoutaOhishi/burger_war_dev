@@ -817,6 +817,7 @@ class SeigoRun3:
         twist.linear.x = -0.5
         self.direct_twist_pub.publish(twist)
 
+        loop_rate = rospy.Rate(30)
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision()
             exist, dist, dire = self.detect_enemy()
@@ -832,7 +833,10 @@ class SeigoRun3:
             elif dist > 1.0:
                 print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
                 break
+
+            loop_rate.sleep()
         
+        #停止
         twist = Twist()
         self.direct_twist_pub.publish(twist)
 
