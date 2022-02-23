@@ -559,7 +559,7 @@ class SeigoRun3:
         if self.scan.angle_increment == 0:
             deg_90 = int((math.pi/2.0))
             print("[seigRun3:detect_collision]self.scan.angle_incrementが0なので正しく計算できない可能性があります")
-            
+
         else:
             deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
 
@@ -872,6 +872,33 @@ class SeigoRun3:
             if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
                 print("[seigoRun3:run]フィールドターゲットを奪われた")
                 break
+    
+
+    def test_move(self):
+        twist = Twist()
+        loop_rate = rospy.Rate(30)
+
+        #前進開始
+        twist.linear.x = 0.5
+        self.direct_twist_pub.publish(twist)
+
+        while not rospy.is_shutdown():
+            is_front_collision, is_rear_collision = self.detect_collision()
+
+            if is_front_collision == True and is_rear_collision == True:
+                twist = Twist()
+
+            elif is_front_collision == True:
+                twist.linear.x = -0.5
+
+            elif is_rear_collision == True:
+                twist.linear.x = 0.5
+
+            else:
+                pass
+            
+            self.direct_twist_pub.publish(twist)
+            loop_rate.sleep()
 
 
 def main():
