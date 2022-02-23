@@ -898,6 +898,48 @@ class SeigoRun3:
         twist = Twist()
         self.direct_twist_pub.publish(twist)
 
+        #敵からもっと遠くにある未取得のターゲットに移動します。
+        print("[seigoRun3:back]敵から最も遠くにある未取得のターゲットを狙います。")
+        target_idx = self.get_farthest_unaquired_target_idx(isEnemy=True)
+
+        res = self.send_goal_pose_of_target_by_idx(target_idx)
+        if res == True: 
+            print("[seigoRun3:back]target_"+str(target_idx)+"に向かって移動します")
+
+        while not rospy.is_shutdown():
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True: #敵発見
+                if dist < 1.0:
+                    print("[seigoRun3:back]1.0以内に敵を発見。敵の方に正対します。")
+                    self.face()
+                    break
+
+            move_base_status = self.move_base_client.get_state()
+            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    print("[seigoRun3:back]target_"+str(target_idx)+"に到着")
+                rospy.sleep(1)       
+                break
+            
+            elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:back]target_"+str(target_idx)+"に向かって移動中")
+                rospy.sleep(1)
+
+
+        # 画角内にマーカーがうまく入らない場合の処理
+        loop_count = 0
+        while not rospy.is_shutdown():
+            if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
+                break 
+            
+            elif loop_count > 3:
+                break
+
+            else:
+                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
+                rospy.sleep(1)
+                loop_count += 1
+
         print("[seigoRun3:back]終了")
 
 
