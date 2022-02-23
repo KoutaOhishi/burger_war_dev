@@ -751,6 +751,7 @@ class SeigoRun3:
         
         ###
         # ずっとfaceが続くと硬直状態が続く可能性があるので、正対しながら移動させたい
+        # 特に負けている場合は
         ###
         print("[seigoRun3:face]終了")
 
@@ -824,15 +825,15 @@ class SeigoRun3:
                 self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
 
             #敵の位置を確認
-            exist, dist, dire = self.detect_enemy()
-            if exist == True: #敵発見
-                print("[seigoRun3:run]!!!! 敵発見 !!!!")
-                break
+            #exist, dist, dire = self.detect_enemy()
+            #if exist == True: #敵発見
+            #    print("[seigoRun3:run]!!!! 敵発見 !!!!")
+            #    break
             
             #フィールドターゲットの状況確認
-            if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
-                print("[seigoRun3:run]フィールドターゲットを奪われた")
-                break
+            #if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
+            #    print("[seigoRun3:run]フィールドターゲットを奪われた")
+            #    break
 
 
 def main():
@@ -842,9 +843,9 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
-        
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
+        node.run()
         loop_rate.sleep()
 
 if __name__ == "__main__":
