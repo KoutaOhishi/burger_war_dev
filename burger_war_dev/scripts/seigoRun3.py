@@ -21,7 +21,7 @@ import angles
 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PointStamped
 from geometry_msgs.msg import Pose, Point, Quaternion, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Image
 from sensor_msgs.msg import Imu
@@ -117,6 +117,10 @@ class SeigoRun3:
         rospy.Subscriber("scan", LaserScan, self.scan_callback)
         self.scan = LaserScan()
 
+        #debug用
+        rospy.Subscriber("clicked_point", PointStamped, self.clicked_point_callback)
+
+
         #move_baseの準備
         self.move_base_client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         if not self.move_base_client.wait_for_server(rospy.Duration(5)):
@@ -146,6 +150,60 @@ class SeigoRun3:
 
     def scan_callback(self, msg):
         self.scan = msg
+
+    def clicked_point_callback(self, msg):
+        unaquired_target_idx_list = []
+        all_field_score = self.all_field_score #最新のフィールドスコア状況を取得
+        
+        for idx in range(6, 18): #全てのターゲットに対して、誰が取っているかを確認
+            # idx 0~5はロボットについているマーカーなので無視
+
+            if all_field_score[idx] == 0:
+                pass #自分が取得しているのでパス
+
+            else:
+                unaquired_target_idx_list.append(idx)
+
+        # 未取得のターゲット（ロボットについているものは除く）が無い場合
+        if len(unaquired_target_idx_list) == 0:
+            print("[seigoRun3:get_farthest_unaquired_target_idx]取得可能なターゲットは0個です")
+            return -1 
+        
+        dist_between_target_list = []
+        """if isEnemy == False:
+            base_frame_name = "base_link"
+        
+        elif isEnemy == True:
+            base_frame_name = self.robot_namespace + "/enemy_closest"
+        """
+
+        map_frame_name   = self.robot_namespace + "/map"
+        self.tf_broadcaster.sendTransform((msg.point.x, msg.point.y, 0), (0,0,0,1), rospy.Time.now(), "clicked_point", map_frame_name)
+
+        check_point_idx_list = [0,2,4,6]#[0,1,2,3,4,5,6,7]
+        dist_list = []
+        for idx in range(len(check_point_idx_list)):
+            target_frame_name = "check_point_"+str(idx)
+            source_frame_name = "clicked_point"
+            
+            try:
+                self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
+                (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
+                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+
+            except Exception as e:
+                rospy.logwarn("Except:[seigoRun3:leave]")
+                rospy.logwarn(str(e))
+                dist = 0.00
+            
+            dist_list.append(dist)
+            print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
+        
+        farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
+        print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
+    
+        #チェックポイントに移動開始
+        self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
     
     def detect_enemy(self):
         print("[seigoRun:detect_enemy]敵検出スタート")
@@ -965,7 +1023,7 @@ def main():
         #strategy = node.strategy_decision()
         #node.strategy_execute(strategy)
         
-        node.face()
+        #node.face()
 
         loop_rate.sleep()
 
