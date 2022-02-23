@@ -507,7 +507,7 @@ class SeigoRun3:
                 print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対します。")
                 return FACE
 
-        if exist == True and dist < 1.5:
+        if exist == True and dist < 1.25:
             print("[seigoRun3:strategy_decision]:閾値以内の範囲に敵を発見。遠くに逃げます。")
             return LEAVE
             
