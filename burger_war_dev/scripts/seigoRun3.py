@@ -783,10 +783,10 @@ class SeigoRun3:
             cmd_vel = Twist()
 
             if degree > 0:
-                cmd_vel.angular.z = math.radians(20)
+                cmd_vel.angular.z = math.radians(40)
             else:
-                cmd_vel.angular.z = -math.radians(20)
-            wait_time = float(abs(degree) / 20)
+                cmd_vel.angular.z = -math.radians(40)
+            wait_time = float(abs(degree) / 40)
             start_time = rospy.Time.now()
 
             #print("[seigoRun3:face]回転開始")
@@ -962,9 +962,11 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
         
+        node.face()
+
         loop_rate.sleep()
 
 if __name__ == "__main__":
