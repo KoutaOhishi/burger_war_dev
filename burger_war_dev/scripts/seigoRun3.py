@@ -144,7 +144,6 @@ class SeigoRun3:
 
     def scan_callback(self, msg):
         self.scan = msg
-        print msg
     
     def detect_enemy(self):
         print("[seigoRun:detect_enemy]敵検出スタート")
@@ -556,7 +555,13 @@ class SeigoRun3:
     def detect_collision(self):
         is_front_collision = False
         is_rear_collision  = False
-        deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
+
+        if self.scan.angle_increment == 0:
+            deg_90 = int((math.pi/2.0))
+            print("[seigRun3:detect_collision]self.scan.angle_incrementが0なので正しく計算できない可能性があります")
+            
+        else:
+            deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
 
         dist_th = 0.15
 
