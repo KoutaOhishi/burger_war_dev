@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from email.mime import base
+from lib2to3.pgen2.token import BACKQUOTE
 from pickle import STOP
 from waypoint import Waypoints
 
@@ -72,7 +73,8 @@ PATROL     = 1
 LEAVE      = 2
 HIDE       = 3
 FACE       = 4
-RUN        = 5
+BACK       = 5
+RUN        = 6
 # ----------------------------------------
 
 class SeigoRun3:
@@ -495,8 +497,15 @@ class SeigoRun3:
 
         #if exist == True: #敵発見
         if exist == True and dist < 1.0:
-            print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対します。")
-            return FACE
+
+            #自分が負けている場合は正対しながら後ろに下がる
+            if self.my_score < self.enemy_score:
+                print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対しながら離れます。")
+                return BACK
+            
+            else:
+                print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対します。")
+                return FACE
 
         if exist == True and dist < 1.5:
             print("[seigoRun3:strategy_decision]:閾値以内の範囲に敵を発見。遠くに逃げます。")
@@ -535,6 +544,9 @@ class SeigoRun3:
         
         elif strategy == FACE:
             self.face()
+
+        elif strategy == BACK:
+            self.back()
 
         elif strategy == RUN:
             self.run()
@@ -787,11 +799,43 @@ class SeigoRun3:
             self.direct_twist_pub.publish(cmd_vel)
             #print("[seigoRun3:face]回転終了")
         
-        ###
-        # ずっとfaceが続くと硬直状態が続く可能性があるので、正対しながら移動させたい
-        # 特に負けている場合は
-        ###
         print("[seigoRun3:face]終了")
+
+    
+    def back(self):
+        #まずは敵の方を向く
+        print("[seigoRun3:back]開始")
+        print("[seigoRun3:back]敵の方を向きます")
+        self.face()
+
+        #コリジョンするまでもしくは敵との距離が一定以上離れるまで下がる
+        twist = Twist()
+        loop_rate = rospy.Rate(30)
+
+        #Back開始
+        twist.linear.x = -0.5
+        self.direct_twist_pub.publish(twist)
+
+        while not rospy.is_shutdown():
+            is_front_collision, is_rear_collision = self.detect_collision()
+            exist, dist, dire = self.detect_enemy()
+
+            if is_rear_collision == True:
+                print("[seigoRun3:back]rearがコリジョンしそうなので後進を停止します")
+                break
+
+            elif exist == False:
+                print("[seigoRun3:back]敵を見失ったので後進を停止します")
+                break
+
+            elif dist > 1.0:
+                print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
+                break
+        
+        twist = Twist()
+        self.direct_twist_pub.publish(twist)
+
+        print("[seigoRun3:back]終了")
 
 
     def patrol(self):
@@ -908,9 +952,9 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
-        node.detect_collision_test_move()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
+        
         loop_rate.sleep()
 
 if __name__ == "__main__":
