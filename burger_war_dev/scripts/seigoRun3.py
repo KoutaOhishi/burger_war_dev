@@ -498,7 +498,7 @@ class SeigoRun3:
         #if exist == True: #敵発見
         if exist == True and dist < 1.0:
 
-            #自分が負けている場合は正対しながら後ろに下がる
+            #自分が負けている場合は正対しながら後ろに下がる#下がるだけではダメかも
             if self.my_score < self.enemy_score:
                 print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対しながら離れます。")
                 return BACK
@@ -715,7 +715,8 @@ class SeigoRun3:
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
                 if exist == True:
                     if dist < 1.0:
-                        print("[seigoRun3:leave]1.0以内に敵を発見。leave関数を終了します。")
+                        print("[seigoRun3:leave]1.0以内に敵を発見。敵に正対してleave関数を終了します。")
+                        self.face()
                         break
 
                     else:
@@ -744,9 +745,9 @@ class SeigoRun3:
             while not rospy.is_shutdown():
                 exist, dist, dire = self.detect_enemy() #敵がいないか確認
                 if exist == True: #敵発見
-                    if dist < 0.5:
-                        print("[seigoRun3:leave]!!! 敵発見 !!!")
-                        self.cancel_goal()
+                    if dist < 1.0:
+                        print("[seigoRun3:leave]1.0以内に敵発見。敵に正対します。")
+                        self.face()
                         break
 
                 move_base_status = self.move_base_client.get_state()
@@ -850,9 +851,9 @@ class SeigoRun3:
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
-                if dist < 2.0:
-                    print("[seigoRun3:patrol]!!! 敵発見 !!!")
-                    self.cancel_goal()
+                if dist < 1.0:
+                    print("[seigoRun3:patrol]1.0以内に敵を発見。敵の方に正対します。")
+                    self.face()
                     break
 
             move_base_status = self.move_base_client.get_state()
@@ -909,8 +910,13 @@ class SeigoRun3:
             #敵の位置を確認
             exist, dist, dire = self.detect_enemy()
             if exist == True: #敵発見
-                print("[seigoRun3:run]!!!! 敵発見 !!!!")
-                break
+                if dist < 1.0:
+                    print("[seigoRun3:run]敵を発見。1.0以内にいるので正対します")
+                    self.face()
+                    break
+                
+                else:
+                    print("[seigoRun3:run]敵を発見。1.0より遠くにいるので無視します。")
             
             #フィールドターゲットの状況確認
             if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
