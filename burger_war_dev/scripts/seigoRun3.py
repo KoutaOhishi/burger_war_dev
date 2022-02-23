@@ -144,6 +144,7 @@ class SeigoRun3:
 
     def scan_callback(self, msg):
         self.scan = msg
+        print msg
     
     def detect_enemy(self):
         print("[seigoRun:detect_enemy]敵検出スタート")
