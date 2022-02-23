@@ -563,7 +563,7 @@ class SeigoRun3:
         else:
             deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
 
-        dist_th = 0.20 #コリジョン判定の閾値
+        dist_th = 0.15 #コリジョン判定の閾値
 
         front_count = len([i for i in self.scan.ranges[0:int(deg_90)] if i < dist_th]) + len([i for i in self.scan.ranges[int(deg_90)*3:-1] if i < dist_th])
         rear_count = len([i for i in self.scan.ranges[int(deg_90):int(deg_90)*3] if i < dist_th])
