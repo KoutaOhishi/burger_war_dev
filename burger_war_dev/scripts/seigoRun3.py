@@ -183,8 +183,8 @@ class SeigoRun3:
         check_point_idx_list = [0,2,4,6]#[0,1,2,3,4,5,6,7]
         dist_list = []
         for idx in range(len(check_point_idx_list)):
-            target_frame_name = "check_point_"+str(idx)
-            source_frame_name = "clicked_point"
+            source_frame_name = "check_point_"+str(idx)
+            target_frame_name = "clicked_point"
             
             try:
                 self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
