@@ -199,7 +199,7 @@ class SeigoRun3:
             dist_list.append(dist)
             print("[seigoRun3:leave]check_point_"+str(idx)+"までの距離："+str(dist))
         
-        farthest_check_point_idx = check_point_idx_list[dist_list.index(min(dist_list))]
+        farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
         print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
     
         #チェックポイントに移動開始
