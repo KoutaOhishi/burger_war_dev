@@ -111,6 +111,10 @@ class SeigoRun3:
         self.enemy_info = [0.0, 0.0]
         self.detect_counter = 0
 
+        #コリジョン判定用にscanトピックをsubscribe
+        rospy.Subscriber("scan", LaserScan, self.scan_callback)
+        self.scan = LaserScan()
+
         #move_baseの準備
         self.move_base_client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         if not self.move_base_client.wait_for_server(rospy.Duration(5)):
@@ -137,6 +141,9 @@ class SeigoRun3:
 
     def enemy_position_callback(self, msg):
         self.enemy_position = msg
+
+    def scan_callback(self, msg):
+        self.scan = msg
     
     def detect_enemy(self):
         print("[seigoRun:detect_enemy]敵検出スタート")
@@ -543,7 +550,32 @@ class SeigoRun3:
         else:
             cmd_vel.angular.z = direction_diff*2.0
         return cmd_vel
+    
+    # RESPECT @koy_tak
+    def detect_collision(self):
+        is_front_collision = False
+        is_rear_collision  = False
+        deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
+
+        dist_th = 0.15
+
+        front_count = len([i for i in self.scan.ranges[0:int(deg_90)] if i < dist_th]) + len([i for i in self.scan.ranges[int(deg_90)*3:-1] if i < dist_th])
+        rear_count = len([i for i in self.scan.ranges[int(deg_90):int(deg_90)*3] if i < dist_th])
+
+        if front_count > 0 and rear_count == 0:
+            is_front_collision = True
+            print("[seigRun3:detect_collision]front collision")
         
+        elif front_count == 0 and rear_count > 0:
+            is_rear_collision = True
+            print("[seigRun3:detect_collision]rear collision")
+        
+        elif front_count > 0 and rear_count > 0:
+            is_front_collision = front_count > rear_count
+            is_rear_collision = not is_front_collision
+            print("[seigRun3:detect_collision]both side collision")
+
+        return is_front_collision, is_rear_collision
 
     def first_move(self):
         # ゲーム開始直後に行う動作
@@ -825,15 +857,15 @@ class SeigoRun3:
                 self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
 
             #敵の位置を確認
-            #exist, dist, dire = self.detect_enemy()
-            #if exist == True: #敵発見
-            #    print("[seigoRun3:run]!!!! 敵発見 !!!!")
-            #    break
+            exist, dist, dire = self.detect_enemy()
+            if exist == True: #敵発見
+                print("[seigoRun3:run]!!!! 敵発見 !!!!")
+                break
             
             #フィールドターゲットの状況確認
-            #if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
-            #    print("[seigoRun3:run]フィールドターゲットを奪われた")
-            #    break
+            if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
+                print("[seigoRun3:run]フィールドターゲットを奪われた")
+                break
 
 
 def main():
@@ -843,9 +875,9 @@ def main():
     loop_rate = rospy.Rate(30) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
-        node.run()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
+        
         loop_rate.sleep()
 
 if __name__ == "__main__":
