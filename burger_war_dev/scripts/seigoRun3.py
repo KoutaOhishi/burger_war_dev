@@ -563,7 +563,7 @@ class SeigoRun3:
         else:
             deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
 
-        dist_th = 0.15
+        dist_th = 0.20 #コリジョン判定の閾値
 
         front_count = len([i for i in self.scan.ranges[0:int(deg_90)] if i < dist_th]) + len([i for i in self.scan.ranges[int(deg_90)*3:-1] if i < dist_th])
         rear_count = len([i for i in self.scan.ranges[int(deg_90):int(deg_90)*3] if i < dist_th])
@@ -874,7 +874,7 @@ class SeigoRun3:
                 break
     
 
-    def test_move(self):
+    def detect_collision_test_move(self):
         twist = Twist()
         loop_rate = rospy.Rate(30)
 
@@ -910,7 +910,7 @@ def main():
     while not rospy.is_shutdown():
         #strategy = node.strategy_decision()
         #node.strategy_execute(strategy)
-        node.test_move()
+        node.detect_collision_test_move()
         loop_rate.sleep()
 
 if __name__ == "__main__":
