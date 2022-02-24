@@ -891,9 +891,13 @@ class SeigoRun3:
                 print("[seigoRun3:back]敵を見失ったので後進を停止します")
                 break
 
-            elif dist > 1.0:
-                print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
-                break
+            elif exist == True:
+                print("[seigoRun3:back]敵が近くにいるので敵の方を向きます")
+                self.face()
+
+                if dist > 1.0:
+                    print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
+                    break
 
             loop_rate.sleep()
         
