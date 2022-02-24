@@ -655,16 +655,16 @@ class SeigoRun3:
 
     def first_move(self):
         # ゲーム開始直後に行う動作
-        # 手前のフィールドターゲットを３つを取る
-        # 赤サイド： 11,13,17
-        # 青サイド： 6,8,14
+        # 手前のフィールドターゲットを３つを取る⇨その後中央横のターゲットを取る
+        # 赤サイド： 13⇨17→11→16
+        # 青サイド： 6⇨14→8→15
         print("[seigoRun3:first_move]開始")
         foreground_target_idx_list = []
         if self.my_side == "b":
-            foreground_target_idx_list = [6,14,8]
+            foreground_target_idx_list = [6,14,8,15]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [13,17,11]
+            foreground_target_idx_list = [13,17,11,16]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
