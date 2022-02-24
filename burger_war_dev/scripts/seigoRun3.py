@@ -699,7 +699,7 @@ class SeigoRun3:
                     print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 #rospy.sleep(1)
 
-                # 画角内にマーカーがうまく入らない場合の処理
+                """# 画角内にマーカーがうまく入らない場合の処理
                 loop_counter = 0
                 while loop_counter < 3:
                     loop_counter += 1
@@ -709,7 +709,37 @@ class SeigoRun3:
                     else:
                         print("[seigotRun3:first_move]target_"+str(target_idx)+"の検出ができないのでバックします")
                         self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
-                        
+                """
+                #Back開始
+                print("[seigoRun3:first_move]target_"+str(target_idx)+"がうまくマーカーに入りません")
+                print("[seigoRun3:first_move]バックします。")
+                twist = Twist()
+                twist.linear.x = -0.25
+                self.direct_twist_pub.publish(twist)
+
+                loop_rate = rospy.Rate(30)
+                while not rospy.is_shutdown():
+                    is_front_collision, is_rear_collision = self.detect_collision()
+                    exist, dist, dire = self.detect_enemy()
+
+                    if self.all_field_score[target_idx] == 0:
+                        break
+
+                    if is_rear_collision == True:
+                        print("[seigoRun3:first_move]rearがコリジョンしそうなので後進を停止します")
+                        break
+
+                    elif exist == True and dist < 1.5:
+                        print("[seigoRun3:first_move]敵が近くにいるので敵の方を向きます")
+                        self.face()
+                        break
+
+                    loop_rate.sleep()
+                
+                #停止
+                twist = Twist()
+                self.direct_twist_pub.publish(twist)
+
                 if(len(foreground_target_idx_list)==0):
                     break #手前３つの巡回完了
                 
@@ -980,7 +1010,7 @@ class SeigoRun3:
 
 
         # 画角内にマーカーがうまく入らない場合の処理
-        loop_count = 0
+        """loop_count = 0
         while not rospy.is_shutdown():
             if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
                 break 
@@ -992,7 +1022,36 @@ class SeigoRun3:
                 self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
                 rospy.sleep(1)
                 loop_count += 1
+        """
+        print("[seigoRun3:patrol]target_"+str(target_idx)+"がうまくマーカーに入りません")
+        print("[seigoRun3:patrol]バックします。")
+        twist = Twist()
+        twist.linear.x = -0.25
+        self.direct_twist_pub.publish(twist)
+
+        loop_rate = rospy.Rate(30)
+        while not rospy.is_shutdown():
+            is_front_collision, is_rear_collision = self.detect_collision()
+            exist, dist, dire = self.detect_enemy()
+
+            if self.all_field_score[target_idx] == 0:
+                break
+
+            if is_rear_collision == True:
+                print("[seigoRun3:patrol]rearがコリジョンしそうなので後進を停止します")
+                break
+
+            elif exist == True and dist < 1.5:
+                print("[seigoRun3:patrol]敵が近くにいるので敵の方を向きます")
+                self.face()
+                break
+
+            loop_rate.sleep()
         
+        #停止
+        twist = Twist()
+        self.direct_twist_pub.publish(twist)
+
         print("[seigoRun3:patrol]終了")
     
     def run(self):
