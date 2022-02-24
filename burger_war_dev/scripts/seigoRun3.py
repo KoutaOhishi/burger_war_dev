@@ -860,6 +860,8 @@ class SeigoRun3:
     def face(self):
         #移動中であれば停止し敵の方を向く
         print("[seigoRun3:face]開始")
+        self.cancel_goal()
+
         exist, dist, dire = self.detect_enemy() #再び敵検出
         
         if exist == False:
@@ -871,10 +873,10 @@ class SeigoRun3:
             cmd_vel = Twist()
 
             if degree > 0:
-                cmd_vel.angular.z = math.radians(20)
+                cmd_vel.angular.z = math.radians(45)
             else:
-                cmd_vel.angular.z = -math.radians(20)
-            wait_time = float(abs(degree) / 20)
+                cmd_vel.angular.z = -math.radians(45)
+            wait_time = float(abs(degree) / 45)
             start_time = rospy.Time.now()
 
             print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
