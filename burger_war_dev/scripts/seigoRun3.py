@@ -734,7 +734,7 @@ class SeigoRun3:
             print("[seigoRun3:leave]敵を検出することができませんでした。")
 
         else: #敵発見
-            check_point_idx_list = [0,2,4,6]#[0,1,2,3,4,5,6,7]
+            check_point_idx_list = [0,1,2,3,4,5,6,7] #[0,2,4,6]#
             dist_list = []
             for idx in range(len(check_point_idx_list)):
                 target_frame_name = "check_point_"+str(check_point_idx_list[idx])
