@@ -848,11 +848,12 @@ class SeigoRun3:
             start_time = rospy.Time.now()
 
             #print("[seigoRun3:face]回転開始")
-            loop_rate = rospy.Rate(30)
+            #loop_rate = rospy.Rate(30)
+            self.direct_twist_pub.publish(cmd_vel)
             while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
-                self.direct_twist_pub.publish(cmd_vel)
-                loop_rate.sleep()
-
+                #loop_rate.sleep()
+                print("[seigoRun3:face]回転中...")
+                
             #回転停止
             cmd_vel.angular.z = 0.0
             self.direct_twist_pub.publish(cmd_vel)
