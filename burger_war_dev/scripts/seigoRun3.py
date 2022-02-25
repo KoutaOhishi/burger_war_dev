@@ -907,7 +907,7 @@ class SeigoRun3:
         loop_rate = rospy.Rate(30)
 
         #Back開始
-        twist.linear.x = -0.5
+        twist.linear.x = -0.25
         self.direct_twist_pub.publish(twist)
 
         loop_rate = rospy.Rate(30)
