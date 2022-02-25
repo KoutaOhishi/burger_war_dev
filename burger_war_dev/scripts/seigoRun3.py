@@ -717,7 +717,7 @@ class SeigoRun3:
                 twist.linear.x = -0.25
                 self.direct_twist_pub.publish(twist)
 
-                loop_rate = rospy.Rate(30)
+                loop_rate = rospy.Rate(10)
                 while not rospy.is_shutdown():
                     is_front_collision, is_rear_collision = self.detect_collision()
                     exist, dist, dire = self.detect_enemy()
@@ -880,7 +880,7 @@ class SeigoRun3:
             start_time = rospy.Time.now()
 
             print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
-            loop_rate = rospy.Rate(30)
+            loop_rate = rospy.Rate(10)
             self.direct_twist_pub.publish(cmd_vel)
             while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
                 #print("[seigoRun3:face]回転中...")
@@ -904,13 +904,12 @@ class SeigoRun3:
 
         #コリジョンするまでもしくは敵との距離が一定以上離れるまで下がる
         twist = Twist()
-        loop_rate = rospy.Rate(30)
+        loop_rate = rospy.Rate(10)
 
         #Back開始
         twist.linear.x = -0.25
         self.direct_twist_pub.publish(twist)
 
-        loop_rate = rospy.Rate(30)
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision()
             exist, dist, dire = self.detect_enemy()
@@ -1031,7 +1030,7 @@ class SeigoRun3:
         twist.linear.x = -0.25
         self.direct_twist_pub.publish(twist)
 
-        loop_rate = rospy.Rate(30)
+        loop_rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision()
             exist, dist, dire = self.detect_enemy()
@@ -1098,7 +1097,7 @@ class SeigoRun3:
 
     def detect_collision_test_move(self):
         twist = Twist()
-        loop_rate = rospy.Rate(30)
+        loop_rate = rospy.Rate(10)
 
         #前進開始
         twist.linear.x = 0.5
@@ -1127,7 +1126,7 @@ def main():
     rospy.init_node("seigo_run3")
     rospy.loginfo("[seigoRun3]seigoRun3 is running")
     node = SeigoRun3()
-    loop_rate = rospy.Rate(30) #30Hz
+    loop_rate = rospy.Rate(10) #30Hz
     
     while not rospy.is_shutdown():
         strategy = node.strategy_decision()
