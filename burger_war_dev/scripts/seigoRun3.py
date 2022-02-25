@@ -1002,7 +1002,10 @@ class SeigoRun3:
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
-                if dist < 1.5:
+                if self.my_body_remain[0] == 2 and self.my_body_remain[1] == 2 and self.my_body_remain[2] == 2:
+                    print("[seigoRun3:patrol]敵発見。Bodyマーカーを全て敵に取られているので無視します")
+                
+                elif dist < 1.5:
                     print("[seigoRun3:patrol]1.0以内に敵を発見。敵の方に正対します。")
                     self.face()
                     break
