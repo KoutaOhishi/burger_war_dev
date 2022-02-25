@@ -556,7 +556,10 @@ class SeigoRun3:
 
         if self.my_body_remain[0] == 2 and self.my_body_remain[1] == 2 and self.my_body_remain[2] == 2:
             print("[seigoRun3:strategy_decision]Bodyのマーカーを全て敵に取られています")
-            return PATROL
+            if self.get_nearest_unaquired_target_idx() == -1: #フィールドターゲットを全部取った
+                return RUN
+            else:    
+                return PATROL
         
         #敵の位置を確認
         exist, dist, dire = self.detect_enemy()
