@@ -934,7 +934,7 @@ class SeigoRun3:
             loop_rate.sleep()
         
         #停止
-        twist = Twist()
+        twist.linear.x = 0
         self.direct_twist_pub.publish(twist)
 
         #敵からもっと遠くにある未取得のターゲットに移動します。
