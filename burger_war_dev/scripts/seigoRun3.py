@@ -795,6 +795,7 @@ class SeigoRun3:
             print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
         
             #チェックポイントに移動開始
+            loop_rate = rospy.Rate(10)
             self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
             while not rospy.is_shutdown():
                 move_base_status = self.move_base_client.get_state()
@@ -830,6 +831,7 @@ class SeigoRun3:
                     else:
                         print("[seigoRun3:leave]!!! 敵発見 !!! 距離が遠いので無視します")
                 """
+                loop_rate.sleep()
 
             print("[seigoRun3:leave]一番近くにある未取得のフィールドターゲットを狙います")
             target_idx = self.get_nearest_unaquired_target_idx()
@@ -854,7 +856,8 @@ class SeigoRun3:
                 
                 elif move_base_status == actionlib.GoalStatus.ACTIVE:
                     print("[seigoRun3:leave]target_"+str(target_idx)+"に向かって移動中")
-                    rospy.sleep(1)
+                
+                loop_rate.sleep()
         
         print("[seigoRun3:leave]終了")
 
@@ -999,6 +1002,7 @@ class SeigoRun3:
         if res == True: 
             print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動します")
 
+        loop_rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
@@ -1019,30 +1023,17 @@ class SeigoRun3:
             
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動中")
-                rospy.sleep(1)
+            
+            loop_rate.sleep()
 
 
         # 画角内にマーカーがうまく入らない場合の処理
-        """loop_count = 0
-        while not rospy.is_shutdown():
-            if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
-                break 
-            
-            elif loop_count > 3:
-                break
-
-            else:
-                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
-                rospy.sleep(1)
-                loop_count += 1
-        """
         print("[seigoRun3:patrol]target_"+str(target_idx)+"がうまくマーカーに入りません")
         print("[seigoRun3:patrol]バックします。")
         twist = Twist()
         twist.linear.x = -0.25
         self.direct_twist_pub.publish(twist)
 
-        loop_rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision()
             exist, dist, dire = self.detect_enemy()
@@ -1072,12 +1063,12 @@ class SeigoRun3:
         #的に見つかるまで、もしくはフィールドターゲットを奪われるまでチェックポイントを回る
         check_point_idx = 0
         self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
+        loop_rate = rospy.Rate(10)
 
         while not rospy.is_shutdown():
             move_base_status = self.move_base_client.get_state()
             if move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に向かって移動中")
-                rospy.sleep(1)
 
             elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 print("[seigoRun3:checkpoint]check_point_"+str(check_point_idx)+"に到着")
@@ -1105,6 +1096,8 @@ class SeigoRun3:
             if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
                 print("[seigoRun3:run]フィールドターゲットを奪われた")
                 break
+
+            loop_rate.sleep()
     
 
     def detect_collision_test_move(self):
