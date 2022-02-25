@@ -599,9 +599,6 @@ class SeigoRun3:
                 return PATROL
 
     def strategy_execute(self, strategy):
-        print("#########################")
-        print("### "+strategy+" ###")
-        print("#########################")
         if strategy == FIRST_MOVE:
             self.first_move()
 
@@ -934,12 +931,13 @@ class SeigoRun3:
                 break
 
             elif exist == True:
-                print("[seigoRun3:back]敵が近くにいるので敵の方を向きます")
-                self.face()
-
                 if dist > 1.0:
                     print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
                     break
+
+                else:
+                    print("[seigoRun3:back]敵が近くにいるので敵の方を向きます")
+                    self.face()
 
             loop_rate.sleep()
         
