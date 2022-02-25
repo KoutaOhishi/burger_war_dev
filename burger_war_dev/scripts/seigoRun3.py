@@ -508,11 +508,15 @@ class SeigoRun3:
 
         #ボディーマーカーのスコアを更新
         if self.my_side == "b":
-            self.my_body_remain = np.sum(self.all_field_score[0:3])
-            self.enemy_body_remain = np.sum(self.all_field_score[3:6])
+            #self.my_body_remain = np.sum(self.all_field_score[0:3])
+            #self.enemy_body_remain = np.sum(self.all_field_score[3:6])
+            self.my_body_remain = self.all_field_score[0:3]
+            self.enemy_body_remain = self.all_field_score[3:6]
         elif self.my_side == "r":
-            self.my_body_remain = np.sum(self.all_field_score[3:6])
-            self.enemy_body_remain = np.sum(self.all_field_score[0:3])
+            #self.my_body_remain = np.sum(self.all_field_score[3:6])
+            #self.enemy_body_remain = np.sum(self.all_field_score[0:3])
+            self.my_body_remain = self.all_field_score[3:6]
+            self.enemy_body_remain = self.all_field_score[0:3]
         
         #print("----------")
         #for i in range(6,18): #6~17
