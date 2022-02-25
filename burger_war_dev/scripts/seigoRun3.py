@@ -549,6 +549,10 @@ class SeigoRun3:
         # scoreや敵の位置情報をもとに動作を決定する
         if self.first_move_did == False:
             return FIRST_MOVE
+
+        if self.my_body_remain[0] == 2 and self.my_body_remain[1] == 2 and self.my_body_remain[2] == 2:
+            print("[seigoRun3:strategy_decision]Bodyのマーカーを全て敵に取られています")
+            return PATROL
         
         #敵の位置を確認
         exist, dist, dire = self.detect_enemy()
