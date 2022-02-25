@@ -599,6 +599,9 @@ class SeigoRun3:
                 return PATROL
 
     def strategy_execute(self, strategy):
+        print("#########################")
+        print("### "+strategy+" ###")
+        print("#########################")
         if strategy == FIRST_MOVE:
             self.first_move()
 
