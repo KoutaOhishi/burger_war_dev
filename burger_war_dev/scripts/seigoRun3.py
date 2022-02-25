@@ -993,7 +993,7 @@ class SeigoRun3:
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
-                if dist < 1.0:
+                if dist < 1.5:
                     print("[seigoRun3:patrol]1.0以内に敵を発見。敵の方に正対します。")
                     self.face()
                     break
