@@ -73,7 +73,7 @@ PATROL     = 1
 LEAVE      = 2
 HIDE       = 3
 FACE       = 4
-BACK       = 5
+ATTACK     = 5
 RUN        = 6
 # ----------------------------------------
 
@@ -569,8 +569,8 @@ class SeigoRun3:
 
             #自分が負けている場合は正対しながら後ろに下がる#下がるだけではダメかも
             if self.my_score < self.enemy_score:
-                print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対しながら離れます。")
-                return BACK
+                print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。ATTACKします。")
+                return ATTACK
             
             else:
                 print("[seigoRun3:strategy_decision]:敵との距離が1.0未満です。敵の方に正対します。")
@@ -614,8 +614,8 @@ class SeigoRun3:
         elif strategy == FACE:
             self.face()
 
-        elif strategy == BACK:
-            self.back()
+        elif strategy == ATTACK:
+            self.attack()
 
         elif strategy == RUN:
             self.run()
@@ -633,7 +633,7 @@ class SeigoRun3:
         return cmd_vel
     
     # RESPECT @koy_tak
-    def detect_collision(self):
+    def detect_collision(self, dist_th=0.15):
         is_front_collision = False
         is_rear_collision  = False
 
@@ -643,8 +643,6 @@ class SeigoRun3:
 
         else:
             deg_90 = int((math.pi/2.0)/self.scan.angle_increment)
-
-        dist_th = 0.15 #コリジョン判定の閾値
 
         front_count = len([i for i in self.scan.ranges[0:int(deg_90)] if i < dist_th]) + len([i for i in self.scan.ranges[int(deg_90)*3:-1] if i < dist_th])
         rear_count = len([i for i in self.scan.ranges[int(deg_90):int(deg_90)*3] if i < dist_th])
@@ -730,7 +728,7 @@ class SeigoRun3:
 
                 loop_rate = rospy.Rate(10)
                 while not rospy.is_shutdown():
-                    is_front_collision, is_rear_collision = self.detect_collision()
+                    is_front_collision, is_rear_collision = self.detect_collision(0.15)
                     exist, dist, dire = self.detect_enemy()
 
                     if self.all_field_score[target_idx] == 0:
@@ -910,10 +908,10 @@ class SeigoRun3:
         print("[seigoRun3:face]終了")
 
     
-    def back(self):
+    def attack(self):
         #まずは敵の方を向く
-        print("[seigoRun3:back]開始")
-        print("[seigoRun3:back]敵の方を向きます")
+        print("[seigoRun3:attack]開始")
+        print("[seigoRun3:attack]敵の方を向きます")
         self.face()
 
         #コリジョンするまでもしくは敵との距離が一定以上離れるまで下がる
@@ -925,24 +923,24 @@ class SeigoRun3:
         self.direct_twist_pub.publish(twist)
 
         while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision()
+            is_front_collision, is_rear_collision = self.detect_collision(0.15)
             exist, dist, dire = self.detect_enemy()
 
             if is_rear_collision == True:
-                print("[seigoRun3:back]rearがコリジョンしそうなので後進を停止します")
+                print("[seigoRun3:attack]rearがコリジョンしそうなので後進を停止します")
                 break
 
             elif exist == False:
-                print("[seigoRun3:back]敵を見失ったので後進を停止します")
+                print("[seigoRun3:attack]敵を見失ったので後進を停止します")
                 break
 
             elif exist == True:
                 if dist > 1.0:
-                    print("[seigoRun3:back]敵までの距離が1.0以上になったので後進を停止します。")
+                    print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
                     break
 
                 else:
-                    print("[seigoRun3:back]敵が近くにいるので敵の方を向きます")
+                    print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
                     self.face()
 
             loop_rate.sleep()
@@ -952,30 +950,30 @@ class SeigoRun3:
         self.direct_twist_pub.publish(twist)
 
         #敵からもっと遠くにある未取得のターゲットに移動します。
-        print("[seigoRun3:back]敵から最も遠くにある未取得のターゲットを狙います。")
+        print("[seigoRun3:attack]敵から最も遠くにある未取得のターゲットを狙います。")
         target_idx = self.get_farthest_unaquired_target_idx(isEnemy=True)
 
         res = self.send_goal_pose_of_target_by_idx(target_idx)
         if res == True: 
-            print("[seigoRun3:back]target_"+str(target_idx)+"に向かって移動します")
+            print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動します")
 
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
                 if dist < 1.0:
-                    print("[seigoRun3:back]1.0以内に敵を発見。敵の方に正対します。")
+                    print("[seigoRun3:attack]1.0以内に敵を発見。敵の方に正対します。")
                     self.face()
                     break
 
             move_base_status = self.move_base_client.get_state()
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                    print("[seigoRun3:back]target_"+str(target_idx)+"に到着")
+                    print("[seigoRun3:attack]target_"+str(target_idx)+"に到着")
                 rospy.sleep(1)       
                 break
             
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:back]target_"+str(target_idx)+"に向かって移動中")
+                print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動中")
                 rospy.sleep(1)
 
 
@@ -993,7 +991,7 @@ class SeigoRun3:
                 rospy.sleep(1)
                 loop_count += 1
 
-        print("[seigoRun3:back]終了")
+        print("[seigoRun3:attack]終了")
 
 
     def patrol(self):
@@ -1038,7 +1036,7 @@ class SeigoRun3:
         self.direct_twist_pub.publish(twist)
 
         while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision()
+            is_front_collision, is_rear_collision = self.detect_collision(0.15)
             exist, dist, dire = self.detect_enemy()
 
             if self.all_field_score[target_idx] == 0:
@@ -1112,7 +1110,7 @@ class SeigoRun3:
         self.direct_twist_pub.publish(twist)
 
         while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision()
+            is_front_collision, is_rear_collision = self.detect_collision(0.15)
 
             if is_front_collision == True and is_rear_collision == True:
                 twist = Twist()
