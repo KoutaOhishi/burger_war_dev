@@ -1094,9 +1094,12 @@ class SeigoRun3:
                 break
 
             elif exist == True and dist < 1.5:
-                print("[seigoRun3:patrol]敵が近くにいるので敵の方を向きます")
-                self.face()
-                break
+                if self.my_body_remain[0] == 2 and self.my_body_remain[1] == 2 and self.my_body_remain[2] == 2:
+                    pass
+                else:
+                    print("[seigoRun3:patrol]敵が近くにいるので敵の方を向きます")
+                    self.face()
+                    break
 
             loop_rate.sleep()
         
