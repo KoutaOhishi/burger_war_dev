@@ -897,29 +897,33 @@ class SeigoRun3:
             print("[seigoRun3:face]敵は周りにいません")
 
         elif exist == True:
-            print("[seigoRun3:face]敵を発見！敵の方を向きます")
             degree = 180.00 * dire / math.pi
-            cmd_vel = Twist()
 
-            if degree > 0:
-                cmd_vel.angular.z = math.radians(20)
+            if abs(degree) < 25:
+                print("[seigoRun3:face]敵との為す角度が25°未満なので回転しません")
+
             else:
-                cmd_vel.angular.z = -math.radians(20)
-            wait_time = float(abs(degree) / 20)
-            start_time = rospy.Time.now()
+                print("[seigoRun3:face]敵を発見！敵の方を向きます")
+                cmd_vel = Twist()
+                if degree > 0:
+                    cmd_vel.angular.z = math.radians(20)
+                else:
+                    cmd_vel.angular.z = -math.radians(20)
+                wait_time = float(abs(degree) / 20)
+                start_time = rospy.Time.now()
 
-            print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
-            loop_rate = rospy.Rate(10)
-            self.direct_twist_pub.publish(cmd_vel)
-            while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
-                #print("[seigoRun3:face]回転中...")
-                #loop_rate.sleep()
-                pass
-        
-            #回転停止
-            cmd_vel.angular.z = 0.0
-            self.direct_twist_pub.publish(cmd_vel)
-            print("[seigoRun3:face]回転終了")
+                print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
+                loop_rate = rospy.Rate(10)
+                self.direct_twist_pub.publish(cmd_vel)
+                while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
+                    #print("[seigoRun3:face]回転中...")
+                    #loop_rate.sleep()
+                    pass
+            
+                #回転停止
+                cmd_vel.angular.z = 0.0
+                self.direct_twist_pub.publish(cmd_vel)
+                print("[seigoRun3:face]回転終了")
         
         print("[seigoRun3:face]終了")
 
