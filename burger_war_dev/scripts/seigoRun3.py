@@ -603,21 +603,39 @@ class SeigoRun3:
 
     def strategy_execute(self, strategy):
         if strategy == FIRST_MOVE:
+            print("----------------------")
+            print("----- FIRST_MOVE -----")
+            print("----------------------")
             self.first_move()
 
         elif strategy == PATROL:
+            print("------------------")
+            print("----- PATROL -----")
+            print("------------------")
             self.patrol()
         
         elif strategy == LEAVE:
+            print("-----------------")
+            print("----- LEAVE -----")
+            print("-----------------")
             self.leave()
         
         elif strategy == FACE:
+            print("----------------")
+            print("----- FACE -----")
+            print("----------------")
             self.face()
 
         elif strategy == ATTACK:
+            print("------------------")
+            print("----- ATTACK -----")
+            print("------------------")
             self.attack()
 
         elif strategy == RUN:
+            print("---------------")
+            print("----- RUN -----")
+            print("---------------")
             self.run()
 
     def cancel_goal(self):
@@ -898,12 +916,11 @@ class SeigoRun3:
                 #print("[seigoRun3:face]回転中...")
                 #loop_rate.sleep()
                 pass
-            print("[seigoRun3:face]回転終了。")
-
+        
             #回転停止
             cmd_vel.angular.z = 0.0
             self.direct_twist_pub.publish(cmd_vel)
-            #print("[seigoRun3:face]回転終了")
+            print("[seigoRun3:face]回転終了")
         
         print("[seigoRun3:face]終了")
 
@@ -911,31 +928,29 @@ class SeigoRun3:
     def attack(self):
         #まずは敵の方を向く
         print("[seigoRun3:attack]開始")
-        print("[seigoRun3:attack]敵の方を向きます")
-        self.face()
-
-        #コリジョンするまでもしくは敵との距離が一定以上離れるまで下がる
+        
         twist = Twist()
         loop_rate = rospy.Rate(10)
 
-        #Back開始
-        twist.linear.x = -0.25
-        self.direct_twist_pub.publish(twist)
+        print("[seigoRun3:attack]敵の方を向きます")
+        self.face()
 
+        #detect_collisionが反応するまで前進
+        twist.linear.x = 0.25
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision(0.15)
             exist, dist, dire = self.detect_enemy()
 
-            if is_rear_collision == True:
-                print("[seigoRun3:attack]rearがコリジョンしそうなので後進を停止します")
+            if is_front_collision == True or is_rear_collision == True:
+                print("[seigoRun3:attack]衝突しそうなので停止します")
                 break
 
             elif exist == False:
-                print("[seigoRun3:attack]敵を見失ったので後進を停止します")
+                print("[seigoRun3:attack]敵を見失ったので停止します")
                 break
 
             elif exist == True:
-                if dist > 1.0:
+                if dist > 1.5:
                     print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
                     break
 
@@ -943,6 +958,37 @@ class SeigoRun3:
                     print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
                     self.face()
 
+            self.direct_twist_pub.publish(twist)
+            loop_rate.sleep()
+
+        #停止
+        twist.linear.x = 0
+        self.direct_twist_pub.publish(twist)
+        
+        #detect_collisionが反応するまで後進
+        twist.linear.x = -0.25
+        while not rospy.is_shutdown():
+            is_front_collision, is_rear_collision = self.detect_collision(0.15)
+            exist, dist, dire = self.detect_enemy()
+
+            if is_front_collision == True or is_rear_collision == True:
+                print("[seigoRun3:attack]衝突しそうなので停止します")
+                break
+
+            elif exist == False:
+                print("[seigoRun3:attack]敵を見失ったので停止します")
+                break
+
+            elif exist == True:
+                if dist > 1.5:
+                    print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
+                    break
+
+                else:
+                    print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
+                    self.face()
+                    
+            self.direct_twist_pub.publish(twist)
             loop_rate.sleep()
         
         #停止
