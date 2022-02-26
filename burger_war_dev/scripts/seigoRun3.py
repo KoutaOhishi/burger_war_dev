@@ -688,10 +688,10 @@ class SeigoRun3:
         print("[seigoRun3:first_move]開始")
         foreground_target_idx_list = []
         if self.my_side == "b":
-            foreground_target_idx_list = [6,14,8,15]
+            foreground_target_idx_list = [6,14,8,13]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [13,17,11,16]
+            foreground_target_idx_list = [13,17,11,6]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
