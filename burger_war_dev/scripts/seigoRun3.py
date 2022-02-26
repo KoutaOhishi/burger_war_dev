@@ -743,7 +743,7 @@ class SeigoRun3:
                 twist.linear.x = -0.25
                 self.direct_twist_pub.publish(twist)
 
-                loop_rate = rospy.Rate(10)
+                loop_rate = rospy.Rate(5)
                 while not rospy.is_shutdown():
                     is_front_collision, is_rear_collision = self.detect_collision(0.15)
                     exist, dist, dire = self.detect_enemy()
@@ -813,7 +813,7 @@ class SeigoRun3:
             print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
         
             #チェックポイントに移動開始
-            loop_rate = rospy.Rate(10)
+            loop_rate = rospy.Rate(5)
             self.send_goal_pose_of_checkPoint_by_idx(farthest_check_point_idx)
             while not rospy.is_shutdown():
                 move_base_status = self.move_base_client.get_state()
@@ -909,7 +909,7 @@ class SeigoRun3:
             start_time = rospy.Time.now()
 
             print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
-            loop_rate = rospy.Rate(10)
+            loop_rate = rospy.Rate(5)
             self.direct_twist_pub.publish(cmd_vel)
             while (start_time + rospy.Duration(wait_time)) > rospy.Time.now():
                 #print("[seigoRun3:face]回転中...")
@@ -929,7 +929,7 @@ class SeigoRun3:
         print("[seigoRun3:attack]開始")
         
         twist = Twist()
-        loop_rate = rospy.Rate(10)
+        loop_rate = rospy.Rate(5)
 
         print("[seigoRun3:attack]敵の方を向きます")
         self.face()
@@ -1048,7 +1048,7 @@ class SeigoRun3:
         if res == True: 
             print("[seigoRun3:patrol]target_"+str(target_idx)+"に向かって移動します")
 
-        loop_rate = rospy.Rate(10)
+        loop_rate = rospy.Rate(5)
         while not rospy.is_shutdown():
             exist, dist, dire = self.detect_enemy() #敵がいないか確認
             if exist == True: #敵発見
@@ -1109,7 +1109,7 @@ class SeigoRun3:
         #的に見つかるまで、もしくはフィールドターゲットを奪われるまでチェックポイントを回る
         check_point_idx = 0
         self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
-        loop_rate = rospy.Rate(10)
+        loop_rate = rospy.Rate(5)
 
         while not rospy.is_shutdown():
             move_base_status = self.move_base_client.get_state()
@@ -1148,7 +1148,7 @@ class SeigoRun3:
 
     def detect_collision_test_move(self):
         twist = Twist()
-        loop_rate = rospy.Rate(10)
+        loop_rate = rospy.Rate(5)
 
         #前進開始
         twist.linear.x = 0.5
@@ -1177,7 +1177,7 @@ def main():
     rospy.init_node("seigo_run3")
     rospy.loginfo("[seigoRun3]seigoRun3 is running")
     node = SeigoRun3()
-    loop_rate = rospy.Rate(10) #30Hz
+    loop_rate = rospy.Rate(5) #30Hz
     
     while not rospy.is_shutdown():
         strategy = node.strategy_decision()
