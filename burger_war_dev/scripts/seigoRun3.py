@@ -602,6 +602,7 @@ class SeigoRun3:
                 return PATROL
 
     def strategy_execute(self, strategy):
+        self.cancel_goal()
         if strategy == FIRST_MOVE:
             print("----------------------")
             print("----- FIRST_MOVE -----")
@@ -1062,7 +1063,7 @@ class SeigoRun3:
                     print("[seigoRun3:patrol]敵発見。Bodyマーカーを全て敵に取られているので無視します")
                 
                 elif dist < 1.5:
-                    print("[seigoRun3:patrol]1.0以内に敵を発見。敵の方に正対します。")
+                    print("[seigoRun3:patrol]1.5以内に敵を発見。敵の方に正対します。")
                     self.face()
                     break
 
