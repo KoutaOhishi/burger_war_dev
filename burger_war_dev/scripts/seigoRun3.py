@@ -902,10 +902,10 @@ class SeigoRun3:
             cmd_vel = Twist()
 
             if degree > 0:
-                cmd_vel.angular.z = math.radians(60)
+                cmd_vel.angular.z = math.radians(20)
             else:
-                cmd_vel.angular.z = -math.radians(60)
-            wait_time = float(abs(degree) / 60)
+                cmd_vel.angular.z = -math.radians(20)
+            wait_time = float(abs(degree) / 20)
             start_time = rospy.Time.now()
 
             print("[seigoRun3:face]"+str(wait_time)+"秒回転します。")
