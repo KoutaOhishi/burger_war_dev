@@ -688,10 +688,10 @@ class SeigoRun3:
         print("[seigoRun3:first_move]開始")
         foreground_target_idx_list = []
         if self.my_side == "b":
-            foreground_target_idx_list = [6,14,8,13]
+            foreground_target_idx_list = [6,14,8]
 
         elif self.my_side == "r":
-            foreground_target_idx_list = [13,17,11,6]
+            foreground_target_idx_list = [13,17,11]
 
         start_time = rospy.get_time()
         while not rospy.is_shutdown():
@@ -714,11 +714,10 @@ class SeigoRun3:
                 
         while not rospy.is_shutdown():
             ### 開始直後は敵がいる可能性は低いので予期せぬ動作を起こさせないために、敵検出処理はスキップする
-            #exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            #if exist == True: #敵発見
-            #    print("[seigoRun3:first_move]!!! 敵発見 !!!")
-            #    self.cancel_goal()
-            #    break
+            exist, dist, dire = self.detect_enemy() #敵がいないか確認
+            if exist == True and dist < 1.5: #敵発見
+                print("[seigoRun3:first_move]!!! 敵発見 !!!")
+                break
 
             move_base_status = self.move_base_client.get_state()
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
