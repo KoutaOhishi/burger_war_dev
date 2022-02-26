@@ -935,12 +935,13 @@ class SeigoRun3:
         self.face()
 
         #detect_collisionが反応するまで前進
+        print("[seigoRun3:attack]前進します")
         twist.linear.x = 0.25
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision(0.15)
             exist, dist, dire = self.detect_enemy()
 
-            if is_front_collision == True or is_rear_collision == True:
+            if is_front_collision == True:
                 print("[seigoRun3:attack]衝突しそうなので停止します")
                 break
 
@@ -965,12 +966,13 @@ class SeigoRun3:
         self.direct_twist_pub.publish(twist)
         
         #detect_collisionが反応するまで後進
+        print("[seigoRun3:attack]後進します")
         twist.linear.x = -0.25
         while not rospy.is_shutdown():
             is_front_collision, is_rear_collision = self.detect_collision(0.15)
             exist, dist, dire = self.detect_enemy()
 
-            if is_front_collision == True or is_rear_collision == True:
+            if is_rear_collision == True:
                 print("[seigoRun3:attack]衝突しそうなので停止します")
                 break
 
