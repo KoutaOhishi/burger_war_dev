@@ -37,7 +37,7 @@ class EnemyDetector:
             temp_y = msg.circles[num].center.y
 
             #フィールド内のオブジェクトであればパス
-            if self.is_point_emnemy(temp_x, temp_y) == False:
+            if self.is_point_enemy(temp_x, temp_y) == False:
                 continue
 
             #敵の座標をTFでbroadcast
@@ -79,7 +79,7 @@ class EnemyDetector:
             #ロボットから敵までの距離をpublish
             self.pub_robot2enemy.publish(closest_enemy_len)
 
-    def is_point_emnemy(self, point_x, point_y):
+    def is_point_enemy(self, point_x, point_y):
         #フィールド内の物体でない、敵と判定する閾値（半径）
         thresh_corner = 0.3 #0.20 
         thresh_center = 0.35 #0.35
@@ -100,6 +100,8 @@ class EnemyDetector:
         len_p3 = math.sqrt(pow((point_x + 0.53), 2) + pow((point_y - 0.53), 2))
         len_p4 = math.sqrt(pow((point_x + 0.53), 2) + pow((point_y + 0.53), 2))
         len_p5 = math.sqrt(pow(point_x         , 2) + pow(point_y         , 2))
+
+        print("[enemy_detector:is_point_enemy]len_p5: "+str(len_p5))
 
         if len_p1 < thresh_corner or len_p2 < thresh_corner or len_p3 < thresh_corner or len_p4 < thresh_corner or len_p5 < thresh_center:
             return False
