@@ -101,8 +101,6 @@ class EnemyDetector:
         len_p4 = math.sqrt(pow((point_x + 0.53), 2) + pow((point_y + 0.53), 2))
         len_p5 = math.sqrt(pow(point_x         , 2) + pow(point_y         , 2))
 
-        print("[enemy_detector:is_point_enemy]len_p5: "+str(len_p5))
-
         if len_p1 < thresh_corner or len_p2 < thresh_corner or len_p3 < thresh_corner or len_p4 < thresh_corner or len_p5 < thresh_center:
             return False
         else:
