@@ -82,30 +82,14 @@ class SeigoRun3:
     def __init__(self):
         self.get_rosparams()
         
-        self.game_timestamp = 0
-        self.last_game_timestamp = 0
         self.my_score = 0
         self.enemy_score = 0
-        self.Is_lowwer_score = False
         self.all_field_score = np.ones([18])  # field score state
-        self.all_field_score_prev = np.ones(
-            [18])  # field score state (previous)
-        self.enemy_get_target_no = -1
-        self.enemy_get_target_no_timestamp = -1
-        self.my_get_target_no = -1
-        self.my_get_target_no_timestamp = -1
+
         self.my_body_remain = 3
         self.enemy_body_remain = 3
-        # self position estimation value
-        self.my_pose_x = 1000              # init value
-        self.my_pose_y = 1000              # init value
-        self.my_direction_th = math.pi*100 # init value
-        self.target_marker_idx = 6 #今取りに行こうとしているターゲット
+        
         self.first_move_did = False
-
-        self.enemy_distance_prev = 0.0
-        self.enemy_direction_diff_prev = 0.0
-        self.enemy_detect_last_time = rospy.get_time()
 
         #敵検出の情報
         rospy.Subscriber("enemy_position", Odometry, self.enemy_position_callback)
@@ -218,11 +202,6 @@ class SeigoRun3:
         enemy_dist = math.sqrt(trans[0]*trans[0]+trans[1]*trans[1])
         enemy_dire = math.atan2(trans[1], trans[0])
         
-        self.enemy_distance_prev = enemy_dist
-        self.enemy_direction_diff_prev = enemy_dire
-
-        self.enemy_detect_last_time = rospy.get_time()
-
         return True, enemy_dist, enemy_dire
 
 
@@ -349,30 +328,6 @@ class SeigoRun3:
     def get_rosparams(self):
         self.my_side = rospy.get_param('~side')
         self.robot_namespace = rospy.get_param('~robot_namespace')
-        self.enemy_time_tolerance = rospy.get_param(
-            '~detect_enemy_time_tolerance', default=0.5)
-        self.snipe_th = rospy.get_param('~snipe_distance_th', default=0.8)
-        self.distance_to_wall_th = rospy.get_param(
-            '~distance_to_wall_th', default=0.15)
-        self.counter_th = rospy.get_param('enemy_count_th', default=3)
-        self.approach_distance_th = rospy.get_param(
-            '~approach_distance_th', default=0.5)
-        self.attack_angle_th = rospy.get_param(
-            '~attack_angle_th', default=45*math.pi/180)
-        self.camera_range_limit = rospy.get_param(
-            '~camera_range_limit', default=[0.2, 0.5])
-        self.camera_angle_limit = rospy.get_param(
-            '~camera_angle_limit', default=30)*math.pi/180
-        self.enable_escape_approach = rospy.get_param(
-            '~enable_escape_approach', default="False")
-        self.escape_approach_distance_th_min = rospy.get_param(
-            '~escape_approach_distance_th_min', default=0.23)
-        self.escape_approach_distance_th_max = rospy.get_param(
-            '~escape_approach_distance_th_max', default=0.85)
-        self.escape_approach_time_interval = rospy.get_param(
-            '~escape_approach_time_interval', default=6)
-        self.imu_linear_acceleration_z_th = rospy.get_param('~imu_linear_acceleration_z_th', default=20)
-
         self.judge_server_url = rospy.get_param('/send_id_to_judge/judge_url')
 
     def get_nearest_unaquired_target_idx(self):
@@ -470,12 +425,7 @@ class SeigoRun3:
             self.enemy_score = int(dic["scores"]["b"])
         else:
             self.enemy_score = int(dic["scores"]["r"])
-
-        #time_stampの取得
-        self.game_timestamp = int(dic["time"])
-        if dic["state"] == "running":
-            self.last_game_timestamp = self.game_timestamp
-
+       
         #フィールドのスコアを取得する
         for idx in range(18): # フィールドターゲットの数は18個
             self.all_field_score_prev[idx] = self.all_field_score[idx] #一つ前のフレームでのスコアを格納
@@ -523,23 +473,7 @@ class SeigoRun3:
         #    print(str(i), str(self.all_field_score[i])    
         #print("----------")
 
-    def tweak_position(self, arg, param, time):
-        # マーカがうまく画角に入らない等の時に実行する関数
-        twist = Twist()
-
-        if arg == "linear":
-            twist.linear.x = param
-        
-        elif arg == "angular":
-            twist.angular.z = param
-
-        self.direct_twist_pub.publish(twist)
-        rospy.sleep(time)
-
-        #止まる
-        twist = Twist()
-        self.direct_twist_pub.publish(twist)
-
+    
     #-------------------------------------------#
     # 現在のスコアや敵ロボットとの関係から戦略を決定する
     #
@@ -726,17 +660,7 @@ class SeigoRun3:
                     print("[seigoRun3:first_move]target_"+str(target_idx)+"に到着")
                 #rospy.sleep(1)
 
-                """# 画角内にマーカーがうまく入らない場合の処理
-                loop_counter = 0
-                while loop_counter < 3:
-                    loop_counter += 1
-                    if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
-                        break 
-                
-                    else:
-                        print("[seigotRun3:first_move]target_"+str(target_idx)+"の検出ができないのでバックします")
-                        self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
-                """
+    
                 #Back開始
                 print("[seigoRun3:first_move]target_"+str(target_idx)+"がうまくマーカーに入りません")
                 print("[seigoRun3:first_move]バックします。")
