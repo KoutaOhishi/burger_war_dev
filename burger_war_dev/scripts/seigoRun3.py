@@ -201,7 +201,9 @@ class SeigoRun3:
         
         enemy_dist = math.sqrt(trans[0]*trans[0]+trans[1]*trans[1])
         enemy_dire = math.atan2(trans[1], trans[0])
-        
+
+        self.enemy_position
+
         return True, enemy_dist, enemy_dire
 
 
@@ -370,6 +372,33 @@ class SeigoRun3:
 
         return nearest_target_idx
     
+    def get_nearest_check_point_idx(self, isEnemy=False):
+        #敵、もしくは自機から最も近いチェックポイントのインデックスを返す
+        check_point_idx_list = [0,1,2,3,4,5,6,7] #[0,2,4,6]#
+        dist_list = []
+
+        if isEnemy == True:
+            source_frame_name = self.robot_namespace + "/enemy_closest"
+        else:
+            source_frame_name = "base_link"
+
+        for idx in range(len(check_point_idx_list)):
+                target_frame_name = "check_point_"+str(check_point_idx_list[idx])
+                source_frame_name = self.robot_namespace + "/enemy_closest"
+                
+                try:
+                    self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
+                    (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
+                    dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+
+                except Exception as e:
+                    dist = 0.00
+                
+                dist_list.append(dist)
+
+            nearest_check_point_idx = check_point_idx_list[dist_list.index(min(dist_list))]
+            return nearest_check_point_idx
+
     def get_farthest_unaquired_target_idx(self, isEnemy=False):
         #自機or敵機から一番遠い未取得のターゲットのidxを返す
         unaquired_target_idx_list = []
@@ -723,12 +752,11 @@ class SeigoRun3:
                     dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
 
                 except Exception as e:
-                    rospy.logwarn("Except:[seigoRun3:leave]")
-                    rospy.logwarn(str(e))
+                    rospy.logwarn("[seigoRun3:leave]"+str(e))
                     dist = 0.00
                 
                 dist_list.append(dist)
-                print("[seigoRun3:leave]check_point_"+str(check_point_idx_list[idx])+"までの距離："+str(dist))
+                #print("[seigoRun3:leave]check_point_"+str(check_point_idx_list[idx])+"までの距離："+str(dist))
             
             farthest_check_point_idx = check_point_idx_list[dist_list.index(max(dist_list))]
             print("[seigoRun3:leave]敵から最も遠くにあるcheck_point_"+str(farthest_check_point_idx)+"への移動を開始します")
@@ -859,122 +887,182 @@ class SeigoRun3:
         print("[seigoRun3:attack]敵の方を向きます")
         self.face()
 
-        #detect_collisionが反応するまで前進
-        print("[seigoRun3:attack]前進します")
-        twist.linear.x = 0.25
-        while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision(0.15)
-            exist, dist, dire = self.detect_enemy()
+        #敵と自機のそれぞれの近くのチェックポイントを調べる
+        my_nearest_check_point_idx = self.get_nearest_check_point_idx(isEnemy=False)
+        enemy_nearest_check_point_idx = self.get_nearest_check_point_idx(isEnemy=True)
 
-            if is_front_collision == True:
-                print("[seigoRun3:attack]衝突しそうなので停止します")
-                break
-
-            elif exist == False:
-                print("[seigoRun3:attack]敵を見失ったので停止します")
-                break
-
-            elif exist == True:
-                if dist > 1.5:
-                    print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
-                    break
-
-                else:
-                    print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
-                    self.face()
-
-            self.direct_twist_pub.publish(twist)
-            loop_rate.sleep()
-
-        #停止
-        twist.linear.x = 0
-        self.direct_twist_pub.publish(twist)
-        
-        #detect_collisionが反応するまで後進
-        print("[seigoRun3:attack]後進します")
-        twist.linear.x = -0.25
-        while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision(0.15)
-            exist, dist, dire = self.detect_enemy()
-
-            if is_rear_collision == True:
-                print("[seigoRun3:attack]衝突しそうなので停止します")
-                break
-
-            elif exist == False:
-                print("[seigoRun3:attack]敵を見失ったので停止します")
-                break
-
-            elif exist == True:
-                if dist > 1.5:
-                    print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
-                    break
-
-                else:
-                    print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
-                    self.face()
-                    
-            self.direct_twist_pub.publish(twist)
-            loop_rate.sleep()
-        
-        #停止
-        twist.linear.x = 0
-        self.direct_twist_pub.publish(twist)
-
-        #敵からもっと遠くにある未取得のターゲットに移動します。
-        print("[seigoRun3:attack]敵から最も遠くにある未取得のターゲットを狙います。")
-        target_idx = self.get_farthest_unaquired_target_idx(isEnemy=True)
-
-        res = self.send_goal_pose_of_target_by_idx(target_idx)
-        if res == True: 
-            print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動します")
-
-        while not rospy.is_shutdown():
-            exist, dist, dire = self.detect_enemy() #敵がいないか確認
-            if exist == True: #敵発見
-                if dist < 1.0:
-                    print("[seigoRun3:attack]1.0以内に敵を発見。敵の方に正対します。")
-                    self.face()
-                    break
-
-            move_base_status = self.move_base_client.get_state()
-            if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                if move_base_status == actionlib.GoalStatus.SUCCEEDED:
-                    print("[seigoRun3:attack]target_"+str(target_idx)+"に到着")
-                #rospy.sleep(1)       
-                break
+        #敵、自機ともに奇数番目のチェックポイントに近いとき
+        #→チェックポイントに隠れて奇襲を狙う
+        if my_nearest_check_point_idx == enemy_nearest_check_point_idx and my_nearest_check_point_idx%2 != 0:
             
-            elif move_base_status == actionlib.GoalStatus.ACTIVE:
-                print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動中")
-                #rospy.sleep(1)
+            #再度敵検出
+            self.detect_enemy()
+
+            #敵の位置を覚えておく
+            target_link = self.robot_namespace + "/enemy_closest"
+            base_link = self.robot_namespace+"map"
+            trans, rot, res = self.get_position_from_tf(target_link, base_link)
+
+            if res == False:
+                print("[seigoRun3:attack]敵の座標変換ができないので奇襲攻撃はあきらめます。")
+
+            else:
+                #チェックポイントまで移動
+                loop_rate = rospy.Rate(10)
+                check_point_idx = my_nearest_check_point_idx
+                self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
+                while not rospy.is_shutdown():
+                    move_base_status = self.move_base_client.get_state()
+                    if move_base_status == actionlib.GoalStatus.ACTIVE:
+                        print("[seigoRun3:attack]check_point_"+str(check_point_idx)+"に向かって移動中")
+
+                    elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                        print("[seigoRun3:attack]check_point_"+str(check_point_idx)+"に到着")
+                        break
+                    loop_rate.sleep()
+
+                self.cancel_goal()
+                #チェックポイントに到着したら、敵の位置まで移動
+                goal_pose = Pose()
+                goal_pose.position.x = trans[0]
+                goal_pose.position.y = trans[1]
+                goal_pose.orientation.z = 1
+                self.send_goal_to_move_base(goal_pose)
+                while not rospy.is_shutdown():
+                    move_base_status = self.move_base_client.get_state()
+                    if move_base_status == actionlib.GoalStatus.ACTIVE:
+                        print("[seigoRun3:attack]敵に向かって移動中")
+
+                    elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                        print("[seigoRun3:attack]敵が元いた位置に到着")
+                    
+                    #敵の位置を確認
+                    exist, dist, dire = self.detect_enemy()
+                    if exist == True:
+                        print("[seigoRun3:attack]敵を発見。敵の方を向きます。")
+                        self.face()
+                        break
+                    
+                    loop_rate.sleep()
+                
+
+        else:
+            #detect_collisionが反応するまで前進
+            print("[seigoRun3:attack]前進します")
+            twist.linear.x = 0.25
+            while not rospy.is_shutdown():
+                is_front_collision, is_rear_collision = self.detect_collision(0.15)
+                exist, dist, dire = self.detect_enemy()
+
+                if is_front_collision == True:
+                    print("[seigoRun3:attack]衝突しそうなので停止します")
+                    break
+
+                elif exist == False:
+                    print("[seigoRun3:attack]敵を見失ったので停止します")
+                    break
+
+                elif exist == True:
+                    if dist > 1.5:
+                        print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
+                        break
+
+                    else:
+                        print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
+                        self.face()
+
+                self.direct_twist_pub.publish(twist)
+                loop_rate.sleep()
+
+            #停止
+            twist.linear.x = 0
+            self.direct_twist_pub.publish(twist)
+            
+            #detect_collisionが反応するまで後進
+            print("[seigoRun3:attack]後進します")
+            twist.linear.x = -0.25
+            while not rospy.is_shutdown():
+                is_front_collision, is_rear_collision = self.detect_collision(0.15)
+                exist, dist, dire = self.detect_enemy()
+
+                if is_rear_collision == True:
+                    print("[seigoRun3:attack]衝突しそうなので停止します")
+                    break
+
+                elif exist == False:
+                    print("[seigoRun3:attack]敵を見失ったので停止します")
+                    break
+
+                elif exist == True:
+                    if dist > 1.5:
+                        print("[seigoRun3:attack]敵までの距離が1.0以上になったので後進を停止します。")
+                        break
+
+                    else:
+                        print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
+                        self.face()
+                        
+                self.direct_twist_pub.publish(twist)
+                loop_rate.sleep()
+            
+            #停止
+            twist.linear.x = 0
+            self.direct_twist_pub.publish(twist)
+
+            #敵からもっと遠くにある未取得のターゲットに移動します。
+            print("[seigoRun3:attack]敵から最も遠くにある未取得のターゲットを狙います。")
+            target_idx = self.get_farthest_unaquired_target_idx(isEnemy=True)
+
+            res = self.send_goal_pose_of_target_by_idx(target_idx)
+            if res == True: 
+                print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動します")
+
+            while not rospy.is_shutdown():
+                exist, dist, dire = self.detect_enemy() #敵がいないか確認
+                if exist == True: #敵発見
+                    if dist < 1.0:
+                        print("[seigoRun3:attack]1.0以内に敵を発見。敵の方に正対します。")
+                        self.face()
+                        break
+
+                move_base_status = self.move_base_client.get_state()
+                if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                    if move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                        print("[seigoRun3:attack]target_"+str(target_idx)+"に到着")
+                    #rospy.sleep(1)       
+                    break
+                
+                elif move_base_status == actionlib.GoalStatus.ACTIVE:
+                    print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動中")
+                    #rospy.sleep(1)
 
 
-        # 画角内にマーカーがうまく入らない場合の処理
-        print("[seigoRun3:attack]target_"+str(target_idx)+"がうまくマーカーに入りません")
-        print("[seigoRun3:attack]バックします。")
-        twist = Twist()
-        twist.linear.x = -0.25
-        self.direct_twist_pub.publish(twist)
+            # 画角内にマーカーがうまく入らない場合の処理
+            print("[seigoRun3:attack]target_"+str(target_idx)+"がうまくマーカーに入りません")
+            print("[seigoRun3:attack]バックします。")
+            twist = Twist()
+            twist.linear.x = -0.25
+            self.direct_twist_pub.publish(twist)
 
-        loop_rate = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision(0.15)
-            exist, dist, dire = self.detect_enemy()
+            loop_rate = rospy.Rate(10)
+            while not rospy.is_shutdown():
+                is_front_collision, is_rear_collision = self.detect_collision(0.15)
+                exist, dist, dire = self.detect_enemy()
 
-            if self.all_field_score[target_idx] == 0:
-                break
+                if self.all_field_score[target_idx] == 0:
+                    break
 
-            if is_rear_collision == True:
-                print("[seigoRun3:attack]rearがコリジョンしそうなので後進を停止します")
-                break
+                if is_rear_collision == True:
+                    print("[seigoRun3:attack]rearがコリジョンしそうなので後進を停止します")
+                    break
 
-            elif exist == True and dist < 1.5:
-                print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
-                self.face()
-                break
+                elif exist == True and dist < 1.5:
+                    print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
+                    self.face()
+                    break
 
-            loop_rate.sleep()
-        
+                loop_rate.sleep()
+            
         #停止
         twist = Twist()
         self.direct_twist_pub.publish(twist)
