@@ -85,7 +85,7 @@ class SeigoRun3:
         self.my_score = 0
         self.enemy_score = 0
         self.all_field_score = np.ones([18])  # field score state
-
+        self.all_field_score_prev = self.all_field_score
         self.my_body_remain = []
         self.enemy_body_remain = []
         
