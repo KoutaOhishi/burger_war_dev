@@ -14,31 +14,6 @@
   <node pkg="burger_war_dev" type="seigoRun3.py" name="seigoRun3" output="screen" >
     <param name="side" value="$(arg side)" />
     <param name="robot_namespace" value="$(arg robot_namespace)" />
-
-    <!-- 何秒前までの敵検出結果を有効とするか -->
-    <param name="detect_enemy_time_tolerance" value="0.5" />
-
-    <!-- 何メートル以内に敵が来たら攻撃行動に遷移するか -->
-    <param name="snipe_distance_th" value="0.8" />
-
-    <!-- この範囲内に障害物があるときは回復行動に移る -->
-    <param name="distance_to_wall_th" value="0.15" />
-
-    <!-- 攻撃するとき敵まで何メートル近づくか -->
-    <param name="approach_distance_th" value="0.53" />
-
-    <!-- 敵と方位角の角度差分がこのしきい値を下回ってから、接近 -->
-    <param name="attack_angle_th" value="0.785" />
-
-    <!-- escape parameter -->
-    <!-- enable escape flag -->
-    <param name="enable_escape_approach" value="True" />
-     <!-- minimum distance to enemy(m) -->
-    <param name="escape_approach_distance_th_min" value="0.231" />
-    <!-- maxmum distance to enemy(m) -->
-    <param name="escape_approach_distance_th_max" value="0.851" />
-    <!-- interval time to min-max distance (sec) -->
-    <param name="escape_approach_time_interval" value="6" />
   </node>
 
   <!-- obstacle_detectorを起動 -->
