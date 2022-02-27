@@ -86,8 +86,8 @@ class SeigoRun3:
         self.enemy_score = 0
         self.all_field_score = np.ones([18])  # field score state
 
-        self.my_body_remain = 3
-        self.enemy_body_remain = 3
+        self.my_body_remain = []
+        self.enemy_body_remain = []
         
         self.first_move_did = False
 
@@ -458,13 +458,9 @@ class SeigoRun3:
 
         #ボディーマーカーのスコアを更新
         if self.my_side == "b":
-            #self.my_body_remain = np.sum(self.all_field_score[0:3])
-            #self.enemy_body_remain = np.sum(self.all_field_score[3:6])
             self.my_body_remain = self.all_field_score[0:3]
             self.enemy_body_remain = self.all_field_score[3:6]
         elif self.my_side == "r":
-            #self.my_body_remain = np.sum(self.all_field_score[3:6])
-            #self.enemy_body_remain = np.sum(self.all_field_score[0:3])
             self.my_body_remain = self.all_field_score[3:6]
             self.enemy_body_remain = self.all_field_score[0:3]
         
