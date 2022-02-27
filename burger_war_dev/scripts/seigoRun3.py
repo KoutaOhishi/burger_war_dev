@@ -1172,30 +1172,45 @@ class SeigoRun3:
             loop_rate.sleep()
     
 
-    def detect_collision_test_move(self):
-        twist = Twist()
+    def test_move(self):
+        print("[seigoRun3:test_move]開始")
+        #的に見つかるまで、もしくはフィールドターゲットを奪われるまでチェックポイントを回る
+        check_point_idx = 0
+        self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
         loop_rate = rospy.Rate(10)
 
-        #前進開始
-        twist.linear.x = 0.5
-        self.direct_twist_pub.publish(twist)
-
         while not rospy.is_shutdown():
-            is_front_collision, is_rear_collision = self.detect_collision(0.15)
+            move_base_status = self.move_base_client.get_state()
+            if move_base_status == actionlib.GoalStatus.ACTIVE:
+                print("[seigoRun3:test_move]check_point_"+str(check_point_idx)+"に向かって移動中")
 
-            if is_front_collision == True and is_rear_collision == True:
-                twist = Twist()
+            elif move_base_status == actionlib.GoalStatus.SUCCEEDED:
+                print("[seigoRun3:test_move]check_point_"+str(check_point_idx)+"に到着")
+                
+                
+                check_point_idx += 1
+                if check_point_idx > 7:
+                    check_point_idx = 0
+                
+                print("[seigoRun3:test_move]check_point_"+str(check_point_idx)+"に向かって移動開始")
+                self.send_goal_pose_of_checkPoint_by_idx(check_point_idx)
 
-            elif is_front_collision == True:
-                twist.linear.x = -0.5
-
-            elif is_rear_collision == True:
-                twist.linear.x = 0.5
-
-            else:
-                pass
+            #敵の位置を確認
+            exist, dist, dire = self.detect_enemy()
+            if exist == True: #敵発見
+                if dist < 1.0:
+                    print("[seigoRun3:test_move]敵を発見。1.0以内にいるので正対します")
+                    self.face()
+                    break
+                
+                else:
+                    print("[seigoRun3:test_move]敵を発見。1.0より遠くにいるので無視します。")
             
-            self.direct_twist_pub.publish(twist)
+            #フィールドターゲットの状況確認
+            #if self.get_nearest_unaquired_target_idx() != -1: #フィールドターゲットを全部取った
+            #    print("[seigoRun3:]フィールドターゲットを奪われた")
+            #    break
+
             loop_rate.sleep()
 
 
@@ -1206,9 +1221,9 @@ def main():
     loop_rate = rospy.Rate(10) #30Hz
     
     while not rospy.is_shutdown():
-        strategy = node.strategy_decision()
-        node.strategy_execute(strategy)
-        
+        #strategy = node.strategy_decision()
+        #node.strategy_execute(strategy)
+        node.test_move()
         loop_rate.sleep()
 
 if __name__ == "__main__":
