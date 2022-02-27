@@ -824,7 +824,7 @@ class SeigoRun3:
 
                 elif move_base_status == actionlib.GoalStatus.ACTIVE:
                     print("[seigoRun3:leave]check_point_"+str(farthest_check_point_idx)+"に向かって移動中")
-                    rospy.sleep(1)
+                    #rospy.sleep(1)
                 
                 dist_thresh = 0.75
                 time_thresh = 1
@@ -1021,27 +1021,43 @@ class SeigoRun3:
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:attack]target_"+str(target_idx)+"に到着")
-                rospy.sleep(1)       
+                #rospy.sleep(1)       
                 break
             
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
                 print("[seigoRun3:attack]target_"+str(target_idx)+"に向かって移動中")
-                rospy.sleep(1)
+                #rospy.sleep(1)
 
 
         # 画角内にマーカーがうまく入らない場合の処理
-        loop_count = 0
+        print("[seigoRun3:attack]target_"+str(target_idx)+"がうまくマーカーに入りません")
+        print("[seigoRun3:attack]バックします。")
+        twist = Twist()
+        twist.linear.x = -0.25
+        self.direct_twist_pub.publish(twist)
+
+        loop_rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            if self.all_field_score[target_idx] == 0: #target_idxのターゲットを取得した
-                break 
-            
-            elif loop_count > 3:
+            is_front_collision, is_rear_collision = self.detect_collision(0.15)
+            exist, dist, dire = self.detect_enemy()
+
+            if self.all_field_score[target_idx] == 0:
                 break
 
-            else:
-                self.tweak_position("linear", -0.1, 0.5) #0.1秒 -0.5下がる
-                rospy.sleep(1)
-                loop_count += 1
+            if is_rear_collision == True:
+                print("[seigoRun3:attack]rearがコリジョンしそうなので後進を停止します")
+                break
+
+            elif exist == True and dist < 1.5:
+                print("[seigoRun3:attack]敵が近くにいるので敵の方を向きます")
+                self.face()
+                break
+
+            loop_rate.sleep()
+        
+        #停止
+        twist = Twist()
+        self.direct_twist_pub.publish(twist)
 
         print("[seigoRun3:attack]終了")
 
@@ -1071,7 +1087,7 @@ class SeigoRun3:
             if self.all_field_score[target_idx] == 0 or move_base_status == actionlib.GoalStatus.SUCCEEDED:
                 if move_base_status == actionlib.GoalStatus.SUCCEEDED:
                     print("[seigoRun3:patrol]target_"+str(target_idx)+"に到着")
-                rospy.sleep(1)       
+                #rospy.sleep(1)       
                 break
             
             elif move_base_status == actionlib.GoalStatus.ACTIVE:
