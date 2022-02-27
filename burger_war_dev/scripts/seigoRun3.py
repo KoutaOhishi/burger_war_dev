@@ -1221,9 +1221,9 @@ def main():
     loop_rate = rospy.Rate(10) #30Hz
     
     while not rospy.is_shutdown():
-        #strategy = node.strategy_decision()
-        #node.strategy_execute(strategy)
-        node.test_move()
+        strategy = node.strategy_decision()
+        node.strategy_execute(strategy)
+        
         loop_rate.sleep()
 
 if __name__ == "__main__":
