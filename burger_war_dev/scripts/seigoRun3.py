@@ -383,21 +383,23 @@ class SeigoRun3:
             source_frame_name = "base_link"
 
         for idx in range(len(check_point_idx_list)):
-                target_frame_name = "check_point_"+str(check_point_idx_list[idx])
-                source_frame_name = self.robot_namespace + "/enemy_closest"
-                
-                try:
-                    self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
-                    (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
-                    dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+            target_frame_name = "check_point_"+str(check_point_idx_list[idx])
+            source_frame_name = self.robot_namespace + "/enemy_closest"
+            
+            try:
+                self.tf_listener.waitForTransform(source_frame_name, target_frame_name, rospy.Time(0), rospy.Duration(1.0))
+                (trans,rot) = self.tf_listener.lookupTransform(source_frame_name, target_frame_name, rospy.Time(0))
+                dist = math.sqrt(trans[0] ** 2 + trans[1] ** 2)
 
-                except Exception as e:
-                    dist = 0.00
-                
-                dist_list.append(dist)
+            except Exception as e:
+                print("[seigoRun3:get_nearest_...]"+str(e))
+                dist = 1000.00
+            
+            dist_list.append(dist)
 
-            nearest_check_point_idx = check_point_idx_list[dist_list.index(min(dist_list))]
-            return nearest_check_point_idx
+        nearest_check_point_idx = check_point_idx_list[dist_list.index(min(dist_list))]
+        return nearest_check_point_idx
+            
 
     def get_farthest_unaquired_target_idx(self, isEnemy=False):
         #自機or敵機から一番遠い未取得のターゲットのidxを返す
