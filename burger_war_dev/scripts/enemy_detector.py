@@ -81,7 +81,7 @@ class EnemyDetector:
 
     def is_point_enemy(self, point_x, point_y):
         #フィールド内の物体でない、敵と判定する閾値（半径）
-        thresh_corner = 0.35 #0.20 
+        thresh_corner = 0.3 #0.20 
         thresh_center = 0.5 #0.35
 
         #フィールド内かチェック
